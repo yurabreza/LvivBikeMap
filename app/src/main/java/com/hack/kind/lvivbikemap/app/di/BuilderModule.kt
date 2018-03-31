@@ -1,9 +1,9 @@
 package com.hack.kind.lvivbikemap.app.di
 
 
-import com.hack.kind.lvivbikemap.MainActivity
-import com.hack.kind.lvivbikemap.MainActivityModule
-import com.hack.kind.lvivbikemap.MainActivityScope
+import com.hack.kind.lvivbikemap.presentation.main.view.MainActivity
+import com.hack.kind.lvivbikemap.presentation.main.di.MainActivityModule
+import com.hack.kind.lvivbikemap.presentation.main.di.MainActivityScope
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 

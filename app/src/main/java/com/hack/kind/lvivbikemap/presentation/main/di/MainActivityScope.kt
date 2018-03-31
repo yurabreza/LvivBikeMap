@@ -1,4 +1,4 @@
-package com.hack.kind.lvivbikemap
+package com.hack.kind.lvivbikemap.presentation.main.di
 
 import javax.inject.Scope
 

@@ -1,4 +1,4 @@
-package com.hack.kind.lvivbikemap.data.model
+package com.hack.kind.lvivbikemap.domain.model
 
 import com.google.gson.annotations.SerializedName
 
