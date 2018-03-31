@@ -42,9 +42,11 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     implementation "com.android.support:appcompat-v7:$supportLib"
-    implementation "com.google.android.gms:play-services-maps:$playServicesVersion"
-    implementation "com.google.android.gms:play-services-location:$playServicesVersion"
+    implementation "com.android.support:support-annotations:${supportLib}"
+    implementation "com.android.support:recyclerview-v7:${supportLib}"
+    implementation "com.android.support:design:${supportLib}"
 
+    //permissions
     implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.5@aar'
 
     //ui
@@ -52,41 +54,22 @@ dependencies {
         transitive = true
     }
 
-    //required support lib modules
-    implementation "com.android.support:appcompat-v7:${supportLib}"
-    implementation "com.android.support:recyclerview-v7:${supportLib}"
-    implementation "com.android.support:support-annotations:${supportLib}"
-    implementation "com.android.support:design:${supportLib}"
-
-    //rxJava
-    implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
-    implementation "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
-
-    implementation "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
-
+    //maps
+    implementation "com.google.android.gms:play-services-maps:$playServicesVersion"
+    implementation "com.google.android.gms:play-services-location:$playServicesVersion"
     implementation 'com.google.maps.android:android-maps-utils:0.5'
-    compile 'com.squareup.okhttp3:okhttp:3.10.0'
 
+    //test
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
-    // Network
-
     //dagger
-
-    implementation "com.google.dagger:dagger:2.15"
-    implementation "com.google.dagger:dagger-android:2.15"
-    implementation "com.google.dagger:dagger-android-support:2.15"
-    kapt "com.google.dagger:dagger-compiler:2.15"
-    kapt "com.google.dagger:dagger-android-processor:2.15"
-
-//    implementation "com.google.dagger:dagger:$daggerVersion"
-//    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
-//    //daggerAndroid
-//    implementation "com.google.dagger:dagger-android:$daggerVersion"
-//    implementation "com.google.dagger:dagger-android-support:$daggerVersion"
-//    kapt "com.google.dagger:dagger-android-processor:$daggerVersion"
+    implementation "com.google.dagger:dagger:$daggerVersion"
+    implementation "com.google.dagger:dagger-android:$daggerVersion"
+    implementation "com.google.dagger:dagger-android-support:$daggerVersion"
+    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+    kapt "com.google.dagger:dagger-android-processor:$daggerVersion"
 
     //network
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
@@ -99,6 +82,8 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
     implementation "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
 
-    implementation 'com.cocoahero.android:geojson:1.0.1@jar'
-
+    // Moxy
+    implementation "com.arello-mobile:moxy:${moxyVersion}"
+    implementation "com.arello-mobile:moxy-app-compat:${moxyVersion}"
+    annotationProcessor "com.arello-mobile:moxy-compiler:${moxyVersion}"
 }
