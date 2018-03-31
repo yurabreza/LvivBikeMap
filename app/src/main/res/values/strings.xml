@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">LvivBikeMap</string>
+    <string name="title_activity_map">Map</string>
+    <string name="menu_filter">Filter</string>
+    <string name="menu_build_route">Build route</string>
+    <string name="menu_events">Events</string>
+    <string name="menu_send_feedback">Send feedback</string>
+    <string name="menu_about_info">About info</string>
+    <string name="menu_add_marker">Add new marker</string>
+    <string name="menu_feed">News feed</string>
 </resources>
