@@ -12,7 +12,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        buildConfigField "String", "BASE_URL", '"https://veloAPI"'
+        buildConfigField "String", "BASE_URL", '"http://ec2-52-57-78-207.eu-central-1.compute.amazonaws.com:3000/api/"'
     }
     buildTypes {
         release {
@@ -62,5 +62,7 @@ dependencies {
     //rxJava
     implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
     implementation "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
+
+    implementation 'com.cocoahero.android:geojson:1.0.1@jar'
 
 }
