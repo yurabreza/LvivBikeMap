@@ -21,6 +21,9 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.activity_map.*
+import okhttp3.*
+import org.json.JSONArray
+import java.io.IOException
 
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener {
@@ -34,6 +37,31 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItem
         setupDrawer()
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        val s = run("http://ec2-52-57-78-207.eu-central-1.compute.amazonaws.com:3000/api/points")
+        Log.d("MyTag", "my ${s}")
+    }
+
+    fun run(url: String): String? {
+
+        val client = OkHttpClient()
+
+        val request = Request.Builder()
+                .url(url)
+                .build()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call?, response: Response?) {
+
+                val js = JSONArray(response?.body()?.string())
+                Log.d("MyTag", "my $js")
+//                Log.d("MyTag", "my ${response?.body()?.string()}")
+
+            }
+
+            override fun onFailure(call: Call?, e: IOException?) {
+
+            }
+        })
+        return ""
     }
 
     private fun setupDrawer() {
