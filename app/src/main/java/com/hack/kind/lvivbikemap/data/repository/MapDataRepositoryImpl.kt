@@ -5,7 +5,7 @@ import com.hack.kind.lvivbikemap.domain.repository.MapDataRepository
 import io.reactivex.Single
 import okhttp3.ResponseBody
 
-class SunDataRepositoryImpl(private val mApi: ApiInterface) : MapDataRepository {
+class MapDataRepositoryImpl(private val mApi: ApiInterface) : MapDataRepository {
 
     override fun getMapData(): Single<ResponseBody> {
         return mApi.getPoints()
