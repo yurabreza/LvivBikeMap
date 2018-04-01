@@ -2,11 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.hack.kind.lvivbikemap">
 
-<<<<<<<<< Temporary merge branch 1
     <uses-permission android:name="android.permission.INTERNET" />
-=========
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
->>>>>>>>> Temporary merge branch 2
 
     <application
         android:name=".app.App"
