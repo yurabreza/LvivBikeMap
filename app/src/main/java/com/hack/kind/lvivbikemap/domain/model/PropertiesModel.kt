@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 class PropertiesModel(@SerializedName("name") val name: String,
                       @SerializedName("styleUrl") val styleUrl: String,
                       @SerializedName("styleHash") val styleHash: String,
+                      @SerializedName("category") val category: Category,
                       @SerializedName("styleMapHash") val styleMapHash: HashMap<String, String>)
 
 //"properties":{

@@ -18,6 +18,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.*
+import com.google.maps.android.clustering.ClusterManager
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.hack.kind.lvivbikemap.AboutFragment
@@ -26,6 +28,8 @@ import com.hack.kind.lvivbikemap.FilterFragment
 import com.hack.kind.lvivbikemap.R
 import com.hack.kind.lvivbikemap.data.api.FeedbackRequest
 import com.hack.kind.lvivbikemap.data.api.FeedbackResponse
+import com.hack.kind.lvivbikemap.domain.model.CategoryType
+import com.hack.kind.lvivbikemap.domain.model.ParkingMarker
 import com.hack.kind.lvivbikemap.domain.model.PointModel
 import com.hack.kind.lvivbikemap.presentation.map.presenter.MapPresenter
 import com.mikepenz.materialdrawer.Drawer
@@ -45,10 +49,6 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         presenter.sendFeedback(feedback)
     }
 
-    override fun onFiltersSelected() {
-        //    TODO() //To change body of created functions use File | Settings | File Templates.
-    }
-
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -63,6 +63,23 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         return presenterProvider.get()
     }
 
+    lateinit var clusterManager: ClusterManager<ParkingMarker>
+    private lateinit var map: GoogleMap
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val parkings = ArrayList<ParkingMarker>()
+
+    private val rentalMarkers = ArrayList<MarkerOptions>()
+    private val sharingMarkers = ArrayList<MarkerOptions>()
+    private val repairMarkers = ArrayList<MarkerOptions>()
+    private val usefulMarkers = ArrayList<MarkerOptions>()
+    private val interestsMarkers = ArrayList<MarkerOptions>()
+    private val pathsMarkers = ArrayList<MarkerOptions>()
+
+    private var allPoints: ArrayList<PointModel>? = null
+
+    private val allMarkerArrays = arrayListOf(rentalMarkers, sharingMarkers, repairMarkers,
+            usefulMarkers, interestsMarkers, pathsMarkers)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
 
@@ -71,7 +88,6 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         setupDrawer()
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        getPointsFromApi()
     }
 
     private fun addFragment(frag: Fragment, tag: String) {
@@ -86,11 +102,11 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         val drawer = DrawerBuilder()
                 .withActivity(this)
                 .addDrawerItems(
-                        PrimaryDrawerItem().withIdentifier(MENU_ID_FILTER).withIcon(R.drawable.ic_list_black_24dp).withName(getString(R.string.menu_filter)),
+                        PrimaryDrawerItem().withIdentifier(MENU_ID_FILTER).withIcon(R.drawable.ic_filter_list_black_24dp).withName(getString(R.string.menu_filter)),
                         PrimaryDrawerItem().withIdentifier(MENU_ID_BUILD_ROUTE).withIcon(R.drawable.ic_motorcycle_black_24dp).withName(getString(R.string.menu_build_route)),
-                        PrimaryDrawerItem().withIdentifier(MENU_ID_ADD_MARKER).withName(getString(R.string.menu_add_marker)),
+                        PrimaryDrawerItem().withIdentifier(MENU_ID_ADD_MARKER).withIcon(R.drawable.ic_pin_drop_black_24dp).withName(getString(R.string.menu_add_marker)),
                         PrimaryDrawerItem().withIdentifier(MENU_ID_EVENTS).withIcon(R.drawable.ic_event_black_24dp).withName(getString(R.string.menu_events)),
-                        PrimaryDrawerItem().withIdentifier(MENU_ID_FEED).withName(getString(R.string.menu_feed)),
+                        PrimaryDrawerItem().withIdentifier(MENU_ID_FEED).withIcon(R.drawable.ic_dns_black_24dp).withName(getString(R.string.menu_feed)),
                         PrimaryDrawerItem().withIdentifier(MENU_ID_SEND_FEEDBACK).withIcon(R.drawable.ic_feedback_black_24dp).withName(getString(R.string.menu_send_feedback)),
                         PrimaryDrawerItem().withIdentifier(MENU_ID_ABOUT_INFO).withIcon(R.drawable.ic_info_black_24dp).withName(getString(R.string.menu_about_info)))
                 .withOnDrawerItemClickListener(this)
@@ -102,7 +118,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     override fun onItemClick(view: View?, position: Int, drawerItem: IDrawerItem<*, *>?): Boolean {
         when (drawerItem?.identifier) {
             MENU_ID_FILTER -> {
-                addFragment(FilterFragment.newInstance(this), FilterFragment::class.java.simpleName)
+                addFragment(getFilterFrag(), FilterFragment::class.java.simpleName)
             }
             MENU_ID_BUILD_ROUTE -> {
             }
@@ -122,8 +138,20 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         return false
     }
 
+    private fun getFilterFrag(): Fragment {
+        val frag = FilterFragment.newInstance(this)
+        FilterFragment.bikeRepairChecked = allMarkerArrays.contains(repairMarkers)
+        FilterFragment.bikeSharingChecked = allMarkerArrays.contains(sharingMarkers)
+        FilterFragment.rentalChecked = allMarkerArrays.contains(rentalMarkers)
+        FilterFragment.usefulChecked = allMarkerArrays.contains(usefulMarkers)
+        FilterFragment.interestChecked = allMarkerArrays.contains(interestsMarkers)
+        FilterFragment.pathChecked = allMarkerArrays.contains(pathsMarkers)
+        return frag
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        getPointsFromApi()
         setupMapStyle()
         requestUserLocation()
     }
@@ -169,8 +197,101 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     }
 
     override fun showMapData(pointsList: List<PointModel>) {
-        Log.d("$TAG!!!", pointsList.toString())
-        Toast.makeText(this, getString(R.string.points_load_successfuly), Toast.LENGTH_SHORT).show()
+        allPoints = ArrayList(pointsList)
+        sortMarkers(pointsList)
+        drawMarkers()
+        allPoints?.forEach {
+            if (it.feature.properties.category.id == CategoryType.parking) {
+                parkings.add(ParkingMarker(it))
+            }
+        }
+        initCluster(parkings)
+    }
+
+    private fun drawMarkers() {
+        map.clear()
+        allMarkerArrays.forEach { array -> array.forEach { it -> addMarkerToMap(it) } }
+    }
+
+    private fun sortMarkers(pointsList: List<PointModel>) {
+        pointsList.forEach {
+            when (it.feature.properties.category.id) {
+                CategoryType.interests -> interestsMarkers.add(createMarker(it))
+                CategoryType.parking -> pathsMarkers.add(createMarker(it))
+                CategoryType.path -> pathsMarkers.add(createMarker(it))
+                CategoryType.rental -> rentalMarkers.add(createMarker(it))
+                CategoryType.repair -> repairMarkers.add(createMarker(it))
+                CategoryType.sharing -> sharingMarkers.add(createMarker(it))
+                CategoryType.stops -> usefulMarkers.add(createMarker(it))
+            }
+        }
+    }
+
+    private fun addMarkerToMap(it: MarkerOptions) {
+        map.addMarker(it)
+    }
+
+    private fun createMarker(it: PointModel): MarkerOptions {
+        return MarkerOptions()
+                .position(LatLng(it.feature.geometry.coordinates.first()[1], it.feature.geometry.coordinates.first()[0]))
+                .title(it.feature.properties.name).icon(getIcon(it))
+    }
+
+
+    private fun initCluster(parkings: ArrayList<ParkingMarker>) {
+        clusterManager = ClusterManager(this, map)
+        map.setOnCameraIdleListener(clusterManager)
+        map.setOnMarkerClickListener(clusterManager)
+        map.setOnInfoWindowClickListener(clusterManager)
+        clusterManager.addItems(parkings)
+        clusterManager.cluster()
+    }
+
+
+    private fun getIcon(it: PointModel): BitmapDescriptor? {
+        return when (it.feature.properties.category.id) {
+            CategoryType.interests -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+            CategoryType.parking -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
+            CategoryType.path -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)
+            CategoryType.rental -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)
+            CategoryType.repair -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)
+            CategoryType.sharing -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
+            CategoryType.stops -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)
+            else -> {
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)
+            }
+        }
+    }
+
+    override fun onFiltersSelected(typeId: String, checked: Boolean) {
+        Log.d(TAG, "string $typeId")
+        when (typeId) {
+            CategoryType.interests -> manageMarkerArrayVisibility(interestsMarkers, checked)
+            CategoryType.path -> manageMarkerArrayVisibility(pathsMarkers, checked)
+            CategoryType.rental -> manageMarkerArrayVisibility(rentalMarkers, checked)
+            CategoryType.repair -> manageMarkerArrayVisibility(repairMarkers, checked)
+            CategoryType.sharing -> manageMarkerArrayVisibility(sharingMarkers, checked)
+            CategoryType.stops -> manageMarkerArrayVisibility(usefulMarkers, checked)
+
+            CategoryType.parking -> {
+                if (!checked && clusterManager != null) {
+                    clusterManager.clearItems()
+                } else {
+                    clusterManager.addItems(parkings)
+                }
+                clusterManager.cluster()
+            }
+
+        }
+        drawMarkers()
+    }
+
+    private fun manageMarkerArrayVisibility(list: ArrayList<MarkerOptions>, checked: Boolean) {
+        if (checked && !allMarkerArrays.contains(list)) {
+            allMarkerArrays.add(list)
+        } else if (allMarkerArrays.contains(list)) {
+            allMarkerArrays.remove(list)
+        }
     }
 
     override fun showMapDataLoadingError(errorMsg: String) {
