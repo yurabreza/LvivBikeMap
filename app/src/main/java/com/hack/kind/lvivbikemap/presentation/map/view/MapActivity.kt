@@ -244,7 +244,6 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         map.setOnMarkerClickListener(clusterManager)
         map.setOnInfoWindowClickListener(clusterManager)
         clusterManager.addItems(parkings)
-//        clusterManager.renderer = Renderer(map)
         clusterManager.cluster()
     }
 
