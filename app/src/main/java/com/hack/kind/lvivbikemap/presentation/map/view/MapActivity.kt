@@ -207,7 +207,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         pointsList.forEach {
             when (it.feature.properties.category.id) {
                 CategoryType.interests -> interestsMarkers.add(createMarker(it))
-                CategoryType.parking -> pathsMarkers.add(createMarker(it))
+//                CategoryType.parking -> parkings.add(createMarker(it))
                 CategoryType.path -> pathsMarkers.add(createMarker(it))
                 CategoryType.rental -> rentalMarkers.add(createMarker(it))
                 CategoryType.repair -> repairMarkers.add(createMarker(it))
@@ -234,19 +234,20 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         map.setOnMarkerClickListener(clusterManager)
         map.setOnInfoWindowClickListener(clusterManager)
         clusterManager.addItems(parkings)
+//        clusterManager.renderer = Renderer(map)
         clusterManager.cluster()
     }
 
 
     private fun getIcon(it: PointModel): BitmapDescriptor? {
         return when (it.feature.properties.category.id) {
-            CategoryType.interests -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
-            CategoryType.parking -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
+            CategoryType.interests -> BitmapDescriptorFactory.fromResource(R.drawable.ic_places_of_interest)
+            CategoryType.parking -> BitmapDescriptorFactory.fromResource(R.drawable.ic_parking)
             CategoryType.path -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)
             CategoryType.rental -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)
-            CategoryType.repair -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)
-            CategoryType.sharing -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
-            CategoryType.stops -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)
+            CategoryType.repair -> BitmapDescriptorFactory.fromResource(R.drawable.ic_repair)
+            CategoryType.sharing -> BitmapDescriptorFactory.fromResource(R.drawable.ic_bike_sharing)
+            CategoryType.stops -> BitmapDescriptorFactory.fromResource(R.drawable.ic_useful_stops)
             else -> {
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)
             }
