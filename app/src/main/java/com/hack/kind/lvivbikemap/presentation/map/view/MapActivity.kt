@@ -81,6 +81,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     }
 
     private fun addFragment(frag: Fragment, tag: String) {
+        supportFragmentManager.popBackStack()
         supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, frag, tag).addToBackStack(null).commit()
         fragmentContainer.visibility = View.VISIBLE
         updateToolbar(frag)
@@ -315,6 +316,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     override fun onBackPressed() {
         super.onBackPressed()
         fragmentContainer.visibility = View.GONE
+        supportFragmentManager.popBackStack()
         toolbarTitle.text = getString(R.string.app_name)
     }
 
