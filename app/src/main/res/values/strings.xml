@@ -15,4 +15,8 @@
     <string name="filter_places_of_interest">Places of interest</string>
     <string name="filter_bicycle_path">Bicycle path</string>
     <string name="filter_bike_parking">Bike parking</string>
+    <string name="full_name_hint">name</string>
+    <string name="email_hint">email</string>
+    <string name="comment_hint">feedback</string>
+    <string name="btn_send_feedback_text">send</string>
 </resources>
