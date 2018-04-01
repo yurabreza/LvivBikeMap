@@ -11,7 +11,7 @@ interface ApiInterface {
     @GET("points?android=true")
     fun getPoints(): Single<List<PointModel>>
 
-    @POST("/feedback")
+    @POST("feedback")
     fun postFeedback(@Body feedbackRequest: FeedbackRequest): Single<FeedbackResponse>
 
 }

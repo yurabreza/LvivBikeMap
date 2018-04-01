@@ -2,7 +2,7 @@ package com.hack.kind.lvivbikemap.data.api
 
 import com.google.gson.annotations.SerializedName
 
-class FeedbackRequest (@SerializedName("status") val status: String,
+data class FeedbackRequest (@SerializedName("status") val status: String,
                        @SerializedName("fullName") val fullName: String,
                        @SerializedName("email") val email: String,
                        @SerializedName("comment") val comment: String){

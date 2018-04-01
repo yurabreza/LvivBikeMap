@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.PresenterType
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.hack.kind.lvivbikemap.FeedbackFragment
 import com.hack.kind.lvivbikemap.FilterFragment
 import com.hack.kind.lvivbikemap.R
+import com.hack.kind.lvivbikemap.data.api.FeedbackRequest
 import com.hack.kind.lvivbikemap.data.api.FeedbackResponse
 import com.hack.kind.lvivbikemap.domain.model.PointModel
 import com.hack.kind.lvivbikemap.presentation.map.presenter.MapPresenter
@@ -35,10 +37,15 @@ import kotlinx.android.synthetic.main.activity_map.*
 import javax.inject.Inject
 import javax.inject.Provider
 
-class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener, FilterFragment.FiltersSelectedListener, MapView {
+class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener, FilterFragment.FiltersSelectedListener, FeedbackFragment.FeedbackSendListener, MapView {
+
+    override fun onFeedbackSend(feedback: FeedbackRequest) {
+        Log.d("$TAG!!feedback", "$feedback")
+        presenter.sendFeedback(feedback)
+    }
 
     override fun onFiltersSelected() {
-    //    TODO() //To change body of created functions use File | Settings | File Templates.
+        //    TODO() //To change body of created functions use File | Settings | File Templates.
     }
 
     private lateinit var map: GoogleMap
@@ -71,7 +78,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     }
 
     private fun getPointsFromApi() {
-      presenter.getMapData()
+        presenter.getMapData()
     }
 
     private fun setupDrawer() {
@@ -105,7 +112,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
             MENU_ID_FEED -> {
             }
             MENU_ID_SEND_FEEDBACK -> {
-                addFragment(FeedbackFragment.newInstance(), FeedbackFragment::class.java.simpleName)
+                addFragment(FeedbackFragment.newInstance(this), FeedbackFragment::class.java.simpleName)
             }
             MENU_ID_ABOUT_INFO -> {
             }
@@ -178,11 +185,13 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     }
 
     override fun showFeedbackSendSuccess(response: FeedbackResponse?) {
-        // TODO implement
+        Toast.makeText(this, getString(R.string.feedback_send_successfuly), Toast.LENGTH_SHORT).show()
+        onBackPressed()
     }
 
     override fun showFeedbackSendError(eMsg: String) {
-        // TODO implement
+        Log.d("$TAG!!!", eMsg)
+        Toast.makeText(this, getString(R.string.feedback_send_error), Toast.LENGTH_SHORT).show()
     }
 
     companion object {

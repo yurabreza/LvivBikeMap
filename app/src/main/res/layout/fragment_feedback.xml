@@ -20,6 +20,7 @@
         android:layout_below="@+id/et_full_name"
         android:layout_margin="20dp"
         android:hint="@string/email_hint"
+        android:inputType="textEmailAddress"
         android:maxLines="1"/>
 
     <EditText
