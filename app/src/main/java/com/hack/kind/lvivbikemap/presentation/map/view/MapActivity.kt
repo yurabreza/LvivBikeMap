@@ -82,6 +82,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
 
     private fun addFragment(frag: Fragment, tag: String) {
         supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, frag, tag).addToBackStack(null).commit()
+        fragmentContainer.visibility = View.VISIBLE
         updateToolbar(frag)
     }
 
@@ -281,7 +282,6 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
                 }
                 clusterManager.cluster()
             }
-
         }
         drawMarkers()
     }
@@ -314,10 +314,8 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
 
     override fun onBackPressed() {
         super.onBackPressed()
-        val currentFrag = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-        if (currentFrag != null) {
-            updateToolbar(currentFrag)
-        } else toolbarTitle.text = getString(R.string.app_name)
+        fragmentContainer.visibility = View.GONE
+        toolbarTitle.text = getString(R.string.app_name)
     }
 
     override fun showFeedbackSendError(eMsg: String) {
