@@ -3,43 +3,57 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:padding="20dp">
 
     <CheckBox
         android:id="@+id/bikeRentalCb"
-        android:text="@string/filter_bike_rental"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/filter_bike_rental"/>
+
     <CheckBox
         android:id="@+id/publicBikeSharingCb"
-        android:text="@string/filter_public_bike_sharing"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/filter_public_bike_sharing"/>
 
     <CheckBox
         android:id="@+id/bikeRepairCb"
-        android:text="@string/filter_bike_repair"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/filter_bike_repair"/>
+
     <CheckBox
         android:id="@+id/usefulStopsCb"
-        android:text="@string/filter_useful_stops"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/filter_useful_stops"/>
+
     <CheckBox
         android:id="@+id/placesOfInterestCb"
-        android:text="@string/filter_places_of_interest"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/filter_places_of_interest"/>
+
     <CheckBox
         android:id="@+id/bicyclePathCb"
-        android:text="@string/filter_bicycle_path"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/filter_bicycle_path"/>
+
     <CheckBox
         android:id="@+id/bikeParkingCb"
-        android:text="@string/filter_bike_parking"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/filter_bike_parking"/>
 
 </LinearLayout>
