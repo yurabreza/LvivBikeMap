@@ -53,7 +53,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         return presenterProvider.get()
     }
 
-    lateinit var clusterManager: ClusterManager<ParkingMarker>
+    private lateinit var clusterManager: ClusterManager<ParkingMarker>
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val parkings = ArrayList<ParkingMarker>()
@@ -82,6 +82,16 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
 
     private fun addFragment(frag: Fragment, tag: String) {
         supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, frag, tag).addToBackStack(null).commit()
+        updateToolbar(frag)
+    }
+
+    private fun updateToolbar(frag: Fragment) {
+        when (frag::class.java.simpleName) {
+            "FeedbackFragment" -> toolbarTitle.text = getString(R.string.menu_send_feedback)
+            "AboutFragment" -> toolbarTitle.text = getString(R.string.menu_about_info)
+            "FilterFragment" -> toolbarTitle.text = getString(R.string.menu_filter)
+            "SupportMapFragment" -> toolbarTitle.text = getString(R.string.app_name)
+        }
     }
 
     private fun getPointsFromApi() {
@@ -291,16 +301,24 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     }
 
     override fun showLoading() {
-        pb_loading.visibility=View.VISIBLE
+        pb_loading.visibility = View.VISIBLE
     }
 
     override fun hideLoading() {
-        pb_loading.visibility=View.GONE
+        pb_loading.visibility = View.GONE
     }
 
     override fun showFeedbackSendSuccess(response: FeedbackResponse?) {
         Toast.makeText(this, getString(R.string.feedback_send_successfuly), Toast.LENGTH_SHORT).show()
         onBackPressed()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val currentFrag = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+        if (currentFrag != null) {
+            updateToolbar(currentFrag)
+        } else toolbarTitle.text = getString(R.string.app_name)
     }
 
     override fun showFeedbackSendError(eMsg: String) {

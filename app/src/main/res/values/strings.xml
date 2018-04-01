@@ -30,4 +30,5 @@
     <string name="facebook_link">https://www.facebook.com/comfycity.lviv/</string>
     <string name="email_label">email us</string>
     <string name="email_link">comfycity@ukr.net</string>
+    <string name="btn_submit_filters">Submit</string>
 </resources>
