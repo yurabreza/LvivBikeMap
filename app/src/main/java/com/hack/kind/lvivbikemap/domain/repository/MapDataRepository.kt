@@ -1,8 +1,8 @@
 package com.hack.kind.lvivbikemap.domain.repository
 
+import com.hack.kind.lvivbikemap.domain.model.PointModel
 import io.reactivex.Single
-import okhttp3.ResponseBody
 
 interface MapDataRepository {
-    fun getMapData(): Single<ResponseBody>
+    fun getMapData(): Single<List<PointModel>>
 }

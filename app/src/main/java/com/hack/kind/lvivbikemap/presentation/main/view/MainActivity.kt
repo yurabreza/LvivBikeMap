@@ -7,9 +7,9 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.PresenterType
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.hack.kind.lvivbikemap.R
+import com.hack.kind.lvivbikemap.domain.model.PointModel
 import com.hack.kind.lvivbikemap.presentation.main.presenter.MainPresenter
 import dagger.android.AndroidInjection
-import org.json.JSONObject
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -37,12 +37,13 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         presenter.getMapData()
     }
 
-    override fun showMapData(pointsList: List<JSONObject>) {
-        Log.d(TAG, pointsList.toString())
+    override fun showMapData(pointsList: List<PointModel>) {
+        Log.d("$TAG!!!", pointsList.toString())
         // TODO implement
     }
 
     override fun showMapDataLoadingError(errorMsg: String) {
+        Log.d("$TAG!!!", errorMsg)
         // TODO implement
     }
 
