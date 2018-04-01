@@ -17,10 +17,12 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.*
+import com.google.maps.android.clustering.ClusterManager
 import com.hack.kind.lvivbikemap.FilterFragment
 import com.hack.kind.lvivbikemap.R
+import com.hack.kind.lvivbikemap.domain.model.CategoryType
+import com.hack.kind.lvivbikemap.domain.model.ParkingMarker
 import com.hack.kind.lvivbikemap.domain.model.PointModel
 import com.hack.kind.lvivbikemap.presentation.map.presenter.MapPresenter
 import com.mikepenz.materialdrawer.Drawer
@@ -33,10 +35,10 @@ import kotlinx.android.synthetic.main.activity_map.*
 import javax.inject.Inject
 import javax.inject.Provider
 
-class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener, FilterFragment.FiltersSelectedListener, MapView {
-    override fun onFiltersSelected() {
-    //    TODO() //To change body of created functions use File | Settings | File Templates.
-    }
+class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener,
+        FilterFragment.FiltersSelectedListener, MapView {
+
+    lateinit var clusterManager: ClusterManager<ParkingMarker>
 
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -60,7 +62,6 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         setupDrawer()
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        getPointsFromApi()
     }
 
     private fun addFragment(frag: Fragment, tag: String) {
@@ -68,7 +69,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     }
 
     private fun getPointsFromApi() {
-      presenter.getMapData()
+        presenter.getMapData()
     }
 
     private fun setupDrawer() {
@@ -111,6 +112,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        getPointsFromApi()
         setupMapStyle()
         requestUserLocation()
     }
@@ -157,7 +159,62 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
 
     override fun showMapData(pointsList: List<PointModel>) {
         Log.d("$TAG!!!", pointsList.toString())
-        // TODO implement
+        val parkings = ArrayList<ParkingMarker>()
+        pointsList.forEach {
+            if (it.feature.properties.category.id == CategoryType.parking) {
+                parkings.add(ParkingMarker(it))
+            } else {
+                val latLng = LatLng(it.feature.geometry.coordinates.first()[1], it.feature.geometry.coordinates.first()[0])
+                map.addMarker(MarkerOptions()
+                        .position(latLng)
+                        .title(it.feature.properties.name))
+                        .setIcon(getIcon(it))
+            }
+
+        }
+        initCluster(parkings)
+    }
+
+    private fun initCluster(parkings: ArrayList<ParkingMarker>) {
+        clusterManager = ClusterManager(this, map)
+        map.setOnCameraIdleListener(clusterManager)
+        map.setOnMarkerClickListener(clusterManager)
+        map.setOnInfoWindowClickListener(clusterManager)
+        clusterManager.addItems(parkings)
+        clusterManager.cluster()
+    }
+
+
+    private fun getIcon(it: PointModel): BitmapDescriptor? {
+        return when (it.feature.properties.category.id) {
+
+            CategoryType.interests -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+            CategoryType.parking -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
+            CategoryType.path -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)
+            CategoryType.parking -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+            CategoryType.rental -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)
+            CategoryType.repair -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)
+            CategoryType.sharing -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
+            CategoryType.stops -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)
+            else -> {
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)
+            }
+        }
+    }
+
+    override fun onFiltersSelected(typeId: String) {
+        when (typeId) {
+
+            CategoryType.interests -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+            CategoryType.parking -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
+            CategoryType.path -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)
+            CategoryType.parking -> clusterManager.clearItems()
+            CategoryType.rental -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)
+            CategoryType.repair -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)
+            CategoryType.sharing -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
+            CategoryType.stops -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)
+
+        }
     }
 
     override fun showMapDataLoadingError(errorMsg: String) {
