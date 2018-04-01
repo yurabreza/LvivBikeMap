@@ -1,9 +1,9 @@
-package com.hack.kind.lvivbikemap.data.model
+package com.hack.kind.lvivbikemap.domain.model
 
 import com.google.gson.annotations.SerializedName
 
 data class GeometryModel(@SerializedName("type") val type: String,
-                        @SerializedName("coordinates") val coordinates : List<Double>)
+                        @SerializedName("coordinates") val coordinates : List<List<Double>>)
 
 //"geometry":{
 //    "type":"Point",
