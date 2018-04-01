@@ -1,14 +1,16 @@
-package com.hack.kind.lvivbikemap
+package com.hack.kind.lvivbikemap.presentation.map.view
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
-import com.cube.geojson.GeoJsonObject
+import com.arellomobile.mvp.MvpAppCompatActivity
+import com.arellomobile.mvp.presenter.InjectPresenter
+import com.arellomobile.mvp.presenter.PresenterType
+import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -17,33 +19,38 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
-import com.hack.kind.lvivbikemap.data.api.ApiInterface
+import com.hack.kind.lvivbikemap.FilterFragment
+import com.hack.kind.lvivbikemap.R
+import com.hack.kind.lvivbikemap.domain.model.PointModel
+import com.hack.kind.lvivbikemap.presentation.map.presenter.MapPresenter
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.tbruyelle.rxpermissions2.RxPermissions
 import dagger.android.AndroidInjection
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_map.*
-import okhttp3.*
-import org.json.JSONArray
-import java.io.IOException
 import javax.inject.Inject
+import javax.inject.Provider
 
-
-class MapActivity : AppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener, FilterFragment.FiltersSelectedListener {
+class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener, FilterFragment.FiltersSelectedListener, MapView {
     override fun onFiltersSelected() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    //    TODO() //To change body of created functions use File | Settings | File Templates.
     }
 
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     @Inject
-    lateinit var api: ApiInterface
+    lateinit var presenterProvider: Provider<MapPresenter>
 
+    @InjectPresenter(type = PresenterType.LOCAL)
+    lateinit var presenter: MapPresenter
+
+    @ProvidePresenter(type = PresenterType.LOCAL)
+    fun providePresenter(): MapPresenter {
+        return presenterProvider.get()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -61,37 +68,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItem
     }
 
     private fun getPointsFromApi() {
-        api.getPoints()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ response -> parseGeoJson(response) })
-    }
-
-    private fun parseGeoJson(points: List<GeoJsonObject>) {
-        Log.d("myTag", "point $points")
-    }
-
-    fun run(url: String): String? {
-
-        val client = OkHttpClient()
-
-        val request = Request.Builder()
-                .url(url)
-                .build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onResponse(call: Call?, response: Response?) {
-
-                val js = JSONArray(response?.body()?.string())
-                Log.d("MyTag", "my $js")
-//                Log.d("MyTag", "my ${response?.body()?.string()}")
-
-            }
-
-            override fun onFailure(call: Call?, e: IOException?) {
-
-            }
-        })
-        return ""
+      presenter.getMapData()
     }
 
     private fun setupDrawer() {
@@ -114,7 +91,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItem
     override fun onItemClick(view: View?, position: Int, drawerItem: IDrawerItem<*, *>?): Boolean {
         when (drawerItem?.identifier) {
             MENU_ID_FILTER -> {
-                addFragment(FilterFragment.newInstance(this), FilterFragment.javaClass.simpleName)
+                addFragment(FilterFragment.newInstance(this), FilterFragment::class.java.simpleName)
             }
             MENU_ID_BUILD_ROUTE -> {
             }
@@ -176,6 +153,24 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItem
     private fun gotoLviv() {
         val lviv = LatLng(LVIV_LAT, LVIV_LNG)
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(lviv, CAMERA_ZOOM_CITY))
+    }
+
+    override fun showMapData(pointsList: List<PointModel>) {
+        Log.d("$TAG!!!", pointsList.toString())
+        // TODO implement
+    }
+
+    override fun showMapDataLoadingError(errorMsg: String) {
+        Log.d("$TAG!!!", errorMsg)
+        // TODO implement
+    }
+
+    override fun showLoading() {
+        // TODO implement
+    }
+
+    override fun hideLoading() {
+        // TODO implement
     }
 
     companion object {

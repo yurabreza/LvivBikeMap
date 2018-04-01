@@ -31,7 +31,7 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".MapActivity"/>
+            tools:context=".presentation.map.view.MapActivity"/>
 
         <FrameLayout
             android:id="@+id/fragmentContainer"

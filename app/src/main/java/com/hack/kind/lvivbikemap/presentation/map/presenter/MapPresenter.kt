@@ -1,16 +1,16 @@
-package com.hack.kind.lvivbikemap.presentation.main.presenter
+package com.hack.kind.lvivbikemap.presentation.map.presenter
 
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import com.hack.kind.lvivbikemap.domain.repository.MapDataRepository
-import com.hack.kind.lvivbikemap.presentation.main.view.MainView
+import com.hack.kind.lvivbikemap.presentation.map.view.MapView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
 @InjectViewState
-class MainPresenter(private val dataRepository: MapDataRepository) : MvpPresenter<MainView>() {
+class MapPresenter(private val dataRepository: MapDataRepository) : MvpPresenter<MapView>() {
 
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
