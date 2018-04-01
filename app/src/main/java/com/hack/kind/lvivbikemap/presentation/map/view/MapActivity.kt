@@ -20,8 +20,6 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.clustering.ClusterManager
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MapStyleOptions
 import com.hack.kind.lvivbikemap.AboutFragment
 import com.hack.kind.lvivbikemap.FeedbackFragment
 import com.hack.kind.lvivbikemap.FilterFragment
@@ -43,14 +41,6 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener, FilterFragment.FiltersSelectedListener, FeedbackFragment.FeedbackSendListener, MapView {
-
-    override fun onFeedbackSend(feedback: FeedbackRequest) {
-        Log.d("$TAG!!feedback", "$feedback")
-        presenter.sendFeedback(feedback)
-    }
-
-    private lateinit var map: GoogleMap
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     @Inject
     lateinit var presenterProvider: Provider<MapPresenter>
@@ -91,7 +81,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     }
 
     private fun addFragment(frag: Fragment, tag: String) {
-        supportFragmentManager.beginTransaction().add(R.id.fragmentContainer, frag, tag).addToBackStack(null).commit()
+        supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, frag, tag).addToBackStack(null).commit()
     }
 
     private fun getPointsFromApi() {
@@ -315,6 +305,11 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     override fun showFeedbackSendError(eMsg: String) {
         Log.d("$TAG!!!", eMsg)
         Toast.makeText(this, getString(R.string.feedback_send_error), Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onFeedbackSend(feedback: FeedbackRequest) {
+        Log.d("$TAG!!feedback", "$feedback")
+        presenter.sendFeedback(feedback)
     }
 
     companion object {
