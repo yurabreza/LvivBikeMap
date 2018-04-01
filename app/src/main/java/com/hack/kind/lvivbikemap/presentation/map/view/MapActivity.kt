@@ -19,8 +19,10 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.hack.kind.lvivbikemap.FeedbackFragment
 import com.hack.kind.lvivbikemap.FilterFragment
 import com.hack.kind.lvivbikemap.R
+import com.hack.kind.lvivbikemap.data.api.FeedbackResponse
 import com.hack.kind.lvivbikemap.domain.model.PointModel
 import com.hack.kind.lvivbikemap.presentation.map.presenter.MapPresenter
 import com.mikepenz.materialdrawer.Drawer
@@ -34,6 +36,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener, FilterFragment.FiltersSelectedListener, MapView {
+
     override fun onFiltersSelected() {
     //    TODO() //To change body of created functions use File | Settings | File Templates.
     }
@@ -64,7 +67,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     }
 
     private fun addFragment(frag: Fragment, tag: String) {
-        supportFragmentManager.beginTransaction().add(frag, tag).commit()
+        supportFragmentManager.beginTransaction().add(R.id.fragmentContainer, frag, tag).addToBackStack(null).commit()
     }
 
     private fun getPointsFromApi() {
@@ -102,6 +105,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
             MENU_ID_FEED -> {
             }
             MENU_ID_SEND_FEEDBACK -> {
+                addFragment(FeedbackFragment.newInstance(), FeedbackFragment::class.java.simpleName)
             }
             MENU_ID_ABOUT_INFO -> {
             }
@@ -170,6 +174,14 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     }
 
     override fun hideLoading() {
+        // TODO implement
+    }
+
+    override fun showFeedbackSendSuccess(response: FeedbackResponse?) {
+        // TODO implement
+    }
+
+    override fun showFeedbackSendError(eMsg: String) {
         // TODO implement
     }
 
