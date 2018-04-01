@@ -4,9 +4,11 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import com.cube.geojson.GeoJsonObject
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -15,30 +17,58 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.hack.kind.lvivbikemap.data.api.ApiInterface
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.tbruyelle.rxpermissions2.RxPermissions
+import dagger.android.AndroidInjection
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_map.*
 import okhttp3.*
 import org.json.JSONArray
 import java.io.IOException
+import javax.inject.Inject
 
 
-class MapActivity : AppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener {
+class MapActivity : AppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener, FilterFragment.FiltersSelectedListener {
+    override fun onFiltersSelected() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    @Inject
+    lateinit var api: ApiInterface
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
         setupDrawer()
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        val s = run("http://ec2-52-57-78-207.eu-central-1.compute.amazonaws.com:3000/api/points")
-        Log.d("MyTag", "my ${s}")
+        getPointsFromApi()
+    }
+
+    private fun addFragment(frag: Fragment, tag: String) {
+        supportFragmentManager.beginTransaction().add(frag, tag).commit()
+    }
+
+    private fun getPointsFromApi() {
+        api.getPoints()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ response -> parseGeoJson(response) })
+    }
+
+    private fun parseGeoJson(points: List<GeoJsonObject>) {
+        Log.d("myTag", "point $points")
     }
 
     fun run(url: String): String? {
@@ -84,6 +114,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItem
     override fun onItemClick(view: View?, position: Int, drawerItem: IDrawerItem<*, *>?): Boolean {
         when (drawerItem?.identifier) {
             MENU_ID_FILTER -> {
+                addFragment(FilterFragment.newInstance(this), FilterFragment.javaClass.simpleName)
             }
             MENU_ID_BUILD_ROUTE -> {
             }

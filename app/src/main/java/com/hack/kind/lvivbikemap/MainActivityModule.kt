@@ -1,6 +1,12 @@
 package com.hack.kind.lvivbikemap
 
+import com.cube.geojson.GeoJson
+import com.cube.geojson.GeoJsonObject
+import com.cube.geojson.LngLatAlt
+import com.cube.geojson.gson.GeoJsonObjectAdapter
+import com.cube.geojson.gson.LngLatAltAdapter
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.hack.kind.lvivbikemap.data.api.ApiInterface
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import dagger.Module
@@ -44,7 +50,11 @@ class MainActivityModule {
     @Provides
     @MainActivityScope
     fun provideGson(): Gson {
-        return Gson()
+//        gson.registerTypeAdapter(PointModel::class.java, PointAdapter())
+        val builder = GsonBuilder()
+        builder.registerTypeAdapter(GeoJsonObject::class.java, GeoJsonObjectAdapter())
+        builder.registerTypeAdapter(LngLatAlt::class.java, LngLatAltAdapter())
+        return GeoJson.getGson()
     }
 
     @Provides

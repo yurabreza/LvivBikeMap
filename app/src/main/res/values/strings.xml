@@ -8,4 +8,11 @@
     <string name="menu_about_info">About info</string>
     <string name="menu_add_marker">Add new marker</string>
     <string name="menu_feed">News feed</string>
+    <string name="filter_bike_rental">Bike rental</string>
+    <string name="filter_public_bike_sharing">Public bike sharing</string>
+    <string name="filter_bike_repair">Bike repair</string>
+    <string name="filter_useful_stops">Useful stops</string>
+    <string name="filter_places_of_interest">Places of interest</string>
+    <string name="filter_bicycle_path">Bicycle path</string>
+    <string name="filter_bike_parking">Bike parking</string>
 </resources>
