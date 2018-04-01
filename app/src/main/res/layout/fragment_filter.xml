@@ -1,59 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:orientation="vertical"
-    android:padding="20dp">
+    android:background="@color/white">
 
-    <CheckBox
-        android:id="@+id/bikeRentalCb"
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:text="@string/filter_bike_rental"/>
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:padding="20dp">
 
-    <CheckBox
-        android:id="@+id/publicBikeSharingCb"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:text="@string/filter_public_bike_sharing"/>
+        <CheckBox
+            android:id="@+id/bikeRentalCb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/filter_bike_rental"/>
 
-    <CheckBox
-        android:id="@+id/bikeRepairCb"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:text="@string/filter_bike_repair"/>
+        <CheckBox
+            android:id="@+id/publicBikeSharingCb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/filter_public_bike_sharing"/>
 
-    <CheckBox
-        android:id="@+id/usefulStopsCb"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:text="@string/filter_useful_stops"/>
+        <CheckBox
+            android:id="@+id/bikeRepairCb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/filter_bike_repair"/>
 
-    <CheckBox
-        android:id="@+id/placesOfInterestCb"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:text="@string/filter_places_of_interest"/>
+        <CheckBox
+            android:id="@+id/usefulStopsCb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/filter_useful_stops"/>
 
-    <CheckBox
-        android:id="@+id/bicyclePathCb"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:text="@string/filter_bicycle_path"/>
+        <CheckBox
+            android:id="@+id/placesOfInterestCb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/filter_places_of_interest"/>
 
-    <CheckBox
-        android:id="@+id/bikeParkingCb"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:text="@string/filter_bike_parking"/>
+        <CheckBox
+            android:id="@+id/bicyclePathCb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/filter_bicycle_path"/>
 
-</LinearLayout>
+        <CheckBox
+            android:id="@+id/bikeParkingCb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/filter_bike_parking"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnSubmit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="100dp"
+        android:text="@string/btn_submit_filters"/>
+</RelativeLayout>

@@ -47,6 +47,7 @@ class FilterFragment : Fragment() {
             listener.onFiltersSelected(CategoryType.parking, bikeParkingCb.isChecked)
             parkingChecked = bikeParkingCb.isChecked
         }
+        btnSubmit.setOnClickListener({ activity?.onBackPressed() })
     }
 
     interface FiltersSelectedListener {
