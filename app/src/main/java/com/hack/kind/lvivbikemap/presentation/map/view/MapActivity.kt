@@ -100,8 +100,9 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         presenter.getMapData()
     }
 
+    lateinit var drawer: Drawer
     private fun setupDrawer() {
-        val drawer = DrawerBuilder()
+        drawer = DrawerBuilder()
                 .withActivity(this)
                 .addDrawerItems(
                         PrimaryDrawerItem().withIdentifier(MENU_ID_FILTER).withIcon(R.drawable.ic_filter_list_black_24dp).withName(getString(R.string.menu_filter)),
@@ -314,10 +315,14 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
-        fragmentContainer.visibility = View.GONE
-        supportFragmentManager.popBackStack()
-        toolbarTitle.text = getString(R.string.app_name)
+        if (drawer.isDrawerOpen) {
+            drawer.closeDrawer()
+        } else {
+            super.onBackPressed()
+            fragmentContainer.visibility = View.GONE
+            supportFragmentManager.popBackStack()
+            toolbarTitle.text = getString(R.string.app_name)
+        }
     }
 
     override fun showFeedbackSendError(eMsg: String) {
