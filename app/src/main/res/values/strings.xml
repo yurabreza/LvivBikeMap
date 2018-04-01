@@ -24,4 +24,10 @@
     <string name="valid_email_error">enter valid email</string>
     <string name="valid_name_error">enter your name</string>
     <string name="valid_comment_error">enter feedback</string>
+    <string name="points_load_successfuly">points load successfuly</string>
+    <string name="points_load_error">points load error</string>
+    <string name="facebook_label">facebook</string>
+    <string name="facebook_link">https://www.facebook.com/comfycity.lviv/</string>
+    <string name="email_label">email us</string>
+    <string name="email_link">comfycity@ukr.net</string>
 </resources>

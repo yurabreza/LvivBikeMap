@@ -20,6 +20,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.hack.kind.lvivbikemap.AboutFragment
 import com.hack.kind.lvivbikemap.FeedbackFragment
 import com.hack.kind.lvivbikemap.FilterFragment
 import com.hack.kind.lvivbikemap.R
@@ -115,6 +116,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
                 addFragment(FeedbackFragment.newInstance(this), FeedbackFragment::class.java.simpleName)
             }
             MENU_ID_ABOUT_INFO -> {
+                addFragment(AboutFragment.newInstance(), AboutFragment::class.java.simpleName)
             }
         }
         return false
@@ -168,20 +170,20 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
 
     override fun showMapData(pointsList: List<PointModel>) {
         Log.d("$TAG!!!", pointsList.toString())
-        // TODO implement
+        Toast.makeText(this, getString(R.string.points_load_successfuly), Toast.LENGTH_SHORT).show()
     }
 
     override fun showMapDataLoadingError(errorMsg: String) {
-        Log.d("$TAG!!!", errorMsg)
-        // TODO implement
+        Log.e("$TAG!!!", errorMsg)
+        Toast.makeText(this, getString(R.string.points_load_error), Toast.LENGTH_SHORT).show()
     }
 
     override fun showLoading() {
-        // TODO implement
+        pb_loading.visibility=View.VISIBLE
     }
 
     override fun hideLoading() {
-        // TODO implement
+        pb_loading.visibility=View.GONE
     }
 
     override fun showFeedbackSendSuccess(response: FeedbackResponse?) {
