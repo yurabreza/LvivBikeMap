@@ -12,13 +12,8 @@ import kotlinx.android.synthetic.main.fragment_about.*
 
 class AboutFragment : Fragment() {
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_about, container, false)
-    }
-
-    companion object {
-        fun newInstance() = AboutFragment().apply {}
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) =
+            inflater.inflate(R.layout.fragment_about, container, false)!!
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -26,8 +21,8 @@ class AboutFragment : Fragment() {
     }
 
     private fun initListeners() {
-        rl_facebook_link.setOnClickListener({ openFbLink() })
-        rl_email_container.setOnClickListener({ sendEmail() })
+        rlFacebookLink.setOnClickListener { openFbLink() }
+        rlEmailContainer.setOnClickListener { sendEmail() }
     }
 
     private fun openFbLink() {
@@ -40,5 +35,9 @@ class AboutFragment : Fragment() {
         emailIntent.data = Uri.parse("mailto:")
         emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.email_link)))
         startActivity(emailIntent)
+    }
+
+    companion object {
+        fun newInstance() = AboutFragment()
     }
 }

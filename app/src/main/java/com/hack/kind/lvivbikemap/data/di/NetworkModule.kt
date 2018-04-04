@@ -27,7 +27,7 @@ class NetworkModule {
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(httpLoggingInterceptor)
-        //        .addInterceptor(serverAuthInterceptor)
+                //        .addInterceptor(serverAuthInterceptor)
                 .build()
     }
 
@@ -44,14 +44,10 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGson(): Gson {
-        return Gson()
-    }
+    fun provideGson() = Gson()
+
 
     @Provides
     @Singleton
-    fun provideApi(retrofit: Retrofit): ApiInterface {
-        return retrofit.create(ApiInterface::class.java)
-    }
-
+    fun provideApi(retrofit: Retrofit) = retrofit.create(ApiInterface::class.java)!!
 }
