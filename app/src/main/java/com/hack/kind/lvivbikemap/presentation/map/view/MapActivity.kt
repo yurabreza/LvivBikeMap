@@ -190,10 +190,9 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         allPoints = ArrayList(pointsList)
         sortMarkers(pointsList)
         drawMarkers()
-        allPoints?.apply {
-            parkings += this.filter { it.feature.properties.category.id == CategoryType.parking }
-                    .map { ParkingMarker(it) }
-        }
+
+        parkings += allPoints!!.filter { it.feature.properties.category.id == CategoryType.parking }
+                .map(::ParkingMarker)
 
         initCluster(parkings)
     }
