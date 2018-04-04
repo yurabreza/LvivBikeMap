@@ -47,7 +47,7 @@ class FilterFragment : Fragment() {
             listener.onFiltersSelected(CategoryType.parking, bikeParkingCb.isChecked)
             parkingChecked = bikeParkingCb.isChecked
         }
-        btnSubmit.setOnClickListener({ activity?.onBackPressed() })
+        btnSubmit.setOnClickListener { activity?.onBackPressed() }
     }
 
     interface FiltersSelectedListener {
@@ -63,8 +63,7 @@ class FilterFragment : Fragment() {
         var pathChecked = true
         var parkingChecked = true
 
-        fun newInstance(listener: FiltersSelectedListener) = FilterFragment().apply {
-            this.listener = listener
-        }
+        fun newInstance(listener: FiltersSelectedListener) =
+                FilterFragment().apply { this.listener = listener }
     }
 }

@@ -16,19 +16,12 @@ class FeedbackFragment : Fragment() {
 
     private lateinit var listener: FeedbackFragment.FeedbackSendListener
 
-    companion object {
-        fun newInstance(listener: FeedbackSendListener) = FeedbackFragment().apply {
-            this.listener = listener
-        }
-    }
-
     interface FeedbackSendListener {
         fun onFeedbackSend(feedback: FeedbackRequest)
     }
 
-    fun isEmailValid(email: CharSequence): Boolean {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    }
+    private fun isEmailValid(email: CharSequence) = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -36,27 +29,32 @@ class FeedbackFragment : Fragment() {
     }
 
     private fun initListeners() {
-        btn_send_feedback.setOnClickListener({ sendFeedback() })
+        btnSendFeedback.setOnClickListener { sendFeedback() }
     }
 
     private fun sendFeedback() {
         var isValid = true
-        if (!isEmailValid(et_email.text.toString())) {
-            et_email.error = getString(R.string.valid_email_error)
+        if (!isEmailValid(etEmail.text.toString())) {
+            etEmail.error = getString(R.string.valid_email_error)
             isValid = false
         }
-        if (et_full_name.text.isEmpty()) {
-            et_full_name.error = getString(R.string.valid_name_error)
+        if (etFullName.text.isEmpty()) {
+            etFullName.error = getString(R.string.valid_name_error)
             isValid = false
         }
-        if (et_comment.text.isEmpty()) {
-            et_comment.error = getString(R.string.valid_comment_error)
+        if (etComment.text.isEmpty()) {
+            etComment.error = getString(R.string.valid_comment_error)
             isValid = false
         }
         if (isValid) {
-            val feedback = FeedbackRequest("pending", et_full_name.text.toString(), et_email.text.toString(), et_comment.text.toString())
+            val feedback = FeedbackRequest("pending", etFullName.text.toString(), etEmail.text.toString(), etComment.text.toString())
             listener.onFeedbackSend(feedback)
         }
     }
 
+    companion object {
+        fun newInstance(listener: FeedbackSendListener) = FeedbackFragment().apply {
+            this.listener = listener
+        }
+    }
 }

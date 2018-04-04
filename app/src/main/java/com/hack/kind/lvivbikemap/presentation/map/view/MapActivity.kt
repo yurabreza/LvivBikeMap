@@ -120,23 +120,14 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
 
     override fun onItemClick(view: View?, position: Int, drawerItem: IDrawerItem<*, *>?): Boolean {
         when (drawerItem?.identifier) {
-            MENU_ID_FILTER -> {
-                addFragment(getFilterFrag(), FilterFragment::class.java.simpleName)
-            }
-            MENU_ID_BUILD_ROUTE -> {
-            }
-            MENU_ID_ADD_MARKER -> {
-            }
-            MENU_ID_EVENTS -> {
-            }
-            MENU_ID_FEED -> {
-            }
-            MENU_ID_SEND_FEEDBACK -> {
-                addFragment(FeedbackFragment.newInstance(this), FeedbackFragment::class.java.simpleName)
-            }
-            MENU_ID_ABOUT_INFO -> {
-                addFragment(AboutFragment.newInstance(), AboutFragment::class.java.simpleName)
-            }
+            MENU_ID_FILTER -> addFragment(getFilterFrag(), FilterFragment::class.java.simpleName)
+            MENU_ID_BUILD_ROUTE -> Unit
+            MENU_ID_ADD_MARKER -> Unit
+            MENU_ID_EVENTS -> Unit
+            MENU_ID_FEED -> Unit
+            MENU_ID_SEND_FEEDBACK -> addFragment(FeedbackFragment.newInstance(this), FeedbackFragment::class.java.simpleName)
+            MENU_ID_ABOUT_INFO -> addFragment(AboutFragment.newInstance(), AboutFragment::class.java.simpleName)
+
         }
         return false
     }
@@ -161,10 +152,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
 
     private fun setupMapStyle() {
         try {
-            val success = map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json))
-            if (!success) {
-                Log.e(TAG, "Style parsing failed.")
-            }
+            map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json))
         } catch (e: Resources.NotFoundException) {
             Log.e(TAG, "Can't find style. Error: ", e)
         }
@@ -174,7 +162,6 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         RxPermissions(this)
                 .request(Manifest.permission.ACCESS_FINE_LOCATION)
                 .subscribe(this::locationPermissionReceived)
-
     }
 
     @SuppressLint("MissingPermission")
@@ -203,11 +190,10 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
         allPoints = ArrayList(pointsList)
         sortMarkers(pointsList)
         drawMarkers()
-        allPoints?.forEach {
-            if (it.feature.properties.category.id == CategoryType.parking) {
-                parkings.add(ParkingMarker(it))
-            }
-        }
+
+        parkings += allPoints!!.filter { it.feature.properties.category.id == CategoryType.parking }
+                .map(::ParkingMarker)
+
         initCluster(parkings)
     }
 
@@ -260,9 +246,8 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
             CategoryType.repair -> BitmapDescriptorFactory.fromResource(R.drawable.ic_repair)
             CategoryType.sharing -> BitmapDescriptorFactory.fromResource(R.drawable.ic_bike_sharing)
             CategoryType.stops -> BitmapDescriptorFactory.fromResource(R.drawable.ic_useful_stops)
-            else -> {
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)
-            }
+            else -> BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)
+
         }
     }
 
@@ -302,11 +287,11 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     }
 
     override fun showLoading() {
-        pb_loading.visibility = View.VISIBLE
+        pbLoading.visibility = View.VISIBLE
     }
 
     override fun hideLoading() {
-        pb_loading.visibility = View.GONE
+        pbLoading.visibility = View.GONE
     }
 
     override fun showFeedbackSendSuccess(response: FeedbackResponse?) {

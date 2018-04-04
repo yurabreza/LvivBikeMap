@@ -17,29 +17,23 @@ class MapPresenter(private val mapRepo: MapDataRepository, private val userRepo:
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     fun getMapData() {
-        mapRepo.getMapData()
+        addDisposable(mapRepo.getMapData()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe({ disposable ->
-                    addDisposable(disposable)
-                    viewState.showLoading()
-                })
-                .doAfterTerminate({ viewState.hideLoading() })
+                .doOnSubscribe { viewState.showLoading() }
+                .doAfterTerminate { viewState.hideLoading() }
                 .subscribe({ response -> viewState.showMapData(response) },
-                        { throwable -> viewState.showMapDataLoadingError(throwable.message!!) })
+                        { throwable -> viewState.showMapDataLoadingError(throwable.message!!) }))
     }
 
     fun sendFeedback(feedback: FeedbackRequest) {
-        userRepo.sendFeedback(feedback)
+        addDisposable(userRepo.sendFeedback(feedback)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe({ disposable ->
-                    addDisposable(disposable)
-                    viewState.showLoading()
-                })
+                .doOnSubscribe { viewState.showLoading() }
                 .doAfterTerminate({ viewState.hideLoading() })
                 .subscribe({ response -> viewState.showFeedbackSendSuccess(response) },
-                        { throwable -> viewState.showFeedbackSendError(throwable.message!!) })
+                        { throwable -> viewState.showFeedbackSendError(throwable.message!!) }))
     }
 
     private fun addDisposable(disposable: Disposable) {
