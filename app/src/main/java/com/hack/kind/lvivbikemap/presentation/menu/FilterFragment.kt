@@ -1,10 +1,11 @@
-package com.hack.kind.lvivbikemap
+package com.hack.kind.lvivbikemap.presentation.menu
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.hack.kind.lvivbikemap.R
 import com.hack.kind.lvivbikemap.domain.model.CategoryType
 import kotlinx.android.synthetic.main.fragment_filter.*
 

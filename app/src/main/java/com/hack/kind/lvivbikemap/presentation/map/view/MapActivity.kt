@@ -20,9 +20,9 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.clustering.ClusterManager
-import com.hack.kind.lvivbikemap.AboutFragment
-import com.hack.kind.lvivbikemap.FeedbackFragment
-import com.hack.kind.lvivbikemap.FilterFragment
+import com.hack.kind.lvivbikemap.presentation.menu.AboutFragment
+import com.hack.kind.lvivbikemap.presentation.menu.FeedbackFragment
+import com.hack.kind.lvivbikemap.presentation.menu.FilterFragment
 import com.hack.kind.lvivbikemap.R
 import com.hack.kind.lvivbikemap.data.api.FeedbackRequest
 import com.hack.kind.lvivbikemap.data.api.FeedbackResponse
