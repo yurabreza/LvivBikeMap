@@ -1,5 +1,6 @@
 package com.hack.kind.lvivbikemap.presentation.menu
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -14,6 +15,15 @@ class FeedbackFragment : Fragment() {
     private var isValid = false
 
     private lateinit var listener: FeedbackSendListener
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        try {
+            listener = context as FeedbackSendListener
+        } catch (e: ClassCastException) {
+            throw ClassCastException(context?.toString() + " must implement FeedbackSendListener")
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_feedback, container, false)
@@ -64,9 +74,7 @@ class FeedbackFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(listener: FeedbackSendListener) = FeedbackFragment().apply {
-            this.listener = listener
-        }
+        fun newInstance() = FeedbackFragment().apply {}
     }
 
     interface FeedbackSendListener {

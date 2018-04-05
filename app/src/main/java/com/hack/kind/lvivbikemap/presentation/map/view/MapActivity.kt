@@ -20,9 +20,6 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.clustering.ClusterManager
-import com.hack.kind.lvivbikemap.presentation.menu.AboutFragment
-import com.hack.kind.lvivbikemap.presentation.menu.FeedbackFragment
-import com.hack.kind.lvivbikemap.presentation.menu.FilterFragment
 import com.hack.kind.lvivbikemap.R
 import com.hack.kind.lvivbikemap.data.api.FeedbackRequest
 import com.hack.kind.lvivbikemap.data.api.FeedbackResponse
@@ -30,6 +27,9 @@ import com.hack.kind.lvivbikemap.domain.model.CategoryType
 import com.hack.kind.lvivbikemap.domain.model.ParkingMarker
 import com.hack.kind.lvivbikemap.domain.model.PointModel
 import com.hack.kind.lvivbikemap.presentation.map.presenter.MapPresenter
+import com.hack.kind.lvivbikemap.presentation.menu.AboutFragment
+import com.hack.kind.lvivbikemap.presentation.menu.FeedbackFragment
+import com.hack.kind.lvivbikemap.presentation.menu.FilterFragment
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
@@ -40,7 +40,11 @@ import kotlinx.android.synthetic.main.activity_map.*
 import javax.inject.Inject
 import javax.inject.Provider
 
-class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener, FilterFragment.FiltersSelectedListener, FeedbackFragment.FeedbackSendListener, MapView {
+class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback,
+        Drawer.OnDrawerItemClickListener,
+        FilterFragment.FiltersSelectedListener,
+        FeedbackFragment.FeedbackSendListener,
+        MapView {
 
     @Inject
     lateinit var presenterProvider: Provider<MapPresenter>
@@ -125,7 +129,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
             MENU_ID_ADD_MARKER -> Unit
             MENU_ID_EVENTS -> Unit
             MENU_ID_FEED -> Unit
-            MENU_ID_SEND_FEEDBACK -> addFragment(FeedbackFragment.newInstance(this), FeedbackFragment::class.java.simpleName)
+            MENU_ID_SEND_FEEDBACK -> addFragment(FeedbackFragment.newInstance(), FeedbackFragment::class.java.simpleName)
             MENU_ID_ABOUT_INFO -> addFragment(AboutFragment.newInstance(), AboutFragment::class.java.simpleName)
 
         }
@@ -133,7 +137,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     }
 
     private fun getFilterFrag(): Fragment {
-        val frag = FilterFragment.newInstance(this)
+        val frag = FilterFragment.newInstance()
         FilterFragment.bikeRepairChecked = allMarkerArrays.contains(repairMarkers)
         FilterFragment.bikeSharingChecked = allMarkerArrays.contains(sharingMarkers)
         FilterFragment.rentalChecked = allMarkerArrays.contains(rentalMarkers)

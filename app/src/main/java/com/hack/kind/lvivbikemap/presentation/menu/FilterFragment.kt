@@ -1,5 +1,6 @@
 package com.hack.kind.lvivbikemap.presentation.menu
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -12,6 +13,15 @@ import kotlinx.android.synthetic.main.fragment_filter.*
 class FilterFragment : Fragment() {
 
     private lateinit var listener: FiltersSelectedListener
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        try {
+            listener = context as FiltersSelectedListener
+        } catch (e: ClassCastException) {
+            throw ClassCastException(context?.toString() + " must implement FiltersSelectedListener")
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_filter, container, false)
@@ -64,7 +74,7 @@ class FilterFragment : Fragment() {
         var pathChecked = true
         var parkingChecked = true
 
-        fun newInstance(listener: FiltersSelectedListener) =
-                FilterFragment().apply { this.listener = listener }
+        fun newInstance() =
+                FilterFragment().apply {}
     }
 }
