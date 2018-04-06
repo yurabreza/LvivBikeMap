@@ -20,10 +20,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.clustering.ClusterManager
-import com.hack.kind.lvivbikemap.AboutFragment
-import com.hack.kind.lvivbikemap.FeedbackFragment
-import com.hack.kind.lvivbikemap.FilterFragment
-import com.hack.kind.lvivbikemap.R
+import com.hack.kind.lvivbikemap.*
 import com.hack.kind.lvivbikemap.data.api.FeedbackRequest
 import com.hack.kind.lvivbikemap.data.api.FeedbackResponse
 import com.hack.kind.lvivbikemap.domain.model.CategoryType
@@ -40,7 +37,8 @@ import kotlinx.android.synthetic.main.activity_map.*
 import javax.inject.Inject
 import javax.inject.Provider
 
-class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener, FilterFragment.FiltersSelectedListener, FeedbackFragment.FeedbackSendListener, MapView {
+class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerItemClickListener,
+        FilterFragment.FiltersSelectedListener, FeedbackFragment.FeedbackSendListener, MapView {
 
     @Inject
     lateinit var presenterProvider: Provider<MapPresenter>
@@ -121,7 +119,7 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
     override fun onItemClick(view: View?, position: Int, drawerItem: IDrawerItem<*, *>?): Boolean {
         when (drawerItem?.identifier) {
             MENU_ID_FILTER -> addFragment(getFilterFrag(), FilterFragment::class.java.simpleName)
-            MENU_ID_BUILD_ROUTE -> Unit
+            MENU_ID_BUILD_ROUTE -> displayOsmMap()
             MENU_ID_ADD_MARKER -> Unit
             MENU_ID_EVENTS -> Unit
             MENU_ID_FEED -> Unit
@@ -130,6 +128,12 @@ class MapActivity : MvpAppCompatActivity(), OnMapReadyCallback, Drawer.OnDrawerI
 
         }
         return false
+    }
+
+    private fun displayOsmMap() {
+        RxPermissions(this)
+                .request(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe { if (it) addFragment(OsmFragment(), OsmFragment::class.java.simpleName) }
     }
 
     private fun getFilterFrag(): Fragment {
