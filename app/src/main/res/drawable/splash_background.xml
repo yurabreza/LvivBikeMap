@@ -3,10 +3,12 @@
 
     <item android:drawable="@color/colorPrimary"/>
 
-    <item>
+    <item
+        android:right="40dp"
+        android:left="40dp">
         <bitmap
             android:gravity="center"
-            android:src="@mipmap/ic_launcher"/>
+            android:src="@drawable/ic_splash"/>
     </item>
 
 </layer-list>

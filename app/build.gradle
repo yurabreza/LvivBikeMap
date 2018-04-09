@@ -52,6 +52,9 @@ dependencies {
     implementation "com.android.support:recyclerview-v7:${supportLib}"
     implementation "com.android.support:design:${supportLib}"
 
+    //kotlin extentions
+    implementation 'androidx.core:core-ktx:0.3'
+
     //permissions
     implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.5@aar'
 
@@ -61,14 +64,7 @@ dependencies {
     }
 
     //maps
-//    implementation "com.google.android.gms:play-services-maps:$playServicesVersion"
     implementation "com.google.android.gms:play-services-location:$playServicesVersion"
-//    implementation 'com.google.maps.android:android-maps-utils:0.5'
-
-    //test
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
     //dagger
     implementation "com.google.dagger:dagger:$daggerVersion"
@@ -83,7 +79,6 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
     implementation "com.jakewharton.retrofit:retrofit2-rxjava2-adapter:${rxJavaAdapter}"
-    implementation 'com.3sidedcube.util:GeoGson:1.6'
 
     //rxJava
     implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
@@ -99,8 +94,8 @@ dependencies {
     implementation 'com.github.MKergall:osmbonuspack:6.5.1'
 
     //croutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.5'
+//    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5'
+//    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.5'
 
     //crashlytics
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {

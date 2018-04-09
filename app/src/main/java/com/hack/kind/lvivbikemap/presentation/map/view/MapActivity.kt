@@ -2,8 +2,6 @@ package com.hack.kind.lvivbikemap.presentation.map.view
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.res.Resources
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v4.app.Fragment
@@ -19,8 +17,8 @@ import com.google.android.gms.location.LocationServices
 import com.hack.kind.lvivbikemap.*
 import com.hack.kind.lvivbikemap.data.api.FeedbackRequest
 import com.hack.kind.lvivbikemap.data.api.FeedbackResponse
+import com.hack.kind.lvivbikemap.data.categoryChecked
 import com.hack.kind.lvivbikemap.domain.model.CategoryType
-import com.hack.kind.lvivbikemap.domain.model.ParkingMarker
 import com.hack.kind.lvivbikemap.domain.model.PointModel
 import com.hack.kind.lvivbikemap.presentation.map.presenter.MapPresenter
 import com.mikepenz.materialdrawer.Drawer
@@ -30,22 +28,19 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.tbruyelle.rxpermissions2.RxPermissions
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_map.*
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
-import org.osmdroid.bonuspack.kml.KmlDocument
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.overlay.FolderOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import javax.inject.Inject
 import javax.inject.Provider
 
-class MapActivity : MvpAppCompatActivity(), Drawer.OnDrawerItemClickListener,
-        FilterFragment.FiltersSelectedListener, FeedbackFragment.FeedbackSendListener, MapView {
+class MapActivity : MvpAppCompatActivity(),
+        MapView,
+        Drawer.OnDrawerItemClickListener,
+        FilterFragment.FiltersSelectedListener,
+        FeedbackFragment.FeedbackSendListener {
 
     @Inject
     lateinit var presenterProvider: Provider<MapPresenter>
@@ -58,10 +53,9 @@ class MapActivity : MvpAppCompatActivity(), Drawer.OnDrawerItemClickListener,
         return presenterProvider.get()
     }
 
-    //    private lateinit var clusterManager: ClusterManager<ParkingMarker>
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private val parkings = ArrayList<ParkingMarker>()
 
+    private val parkingMarkers = ArrayList<Marker>()
     private val rentalMarkers = ArrayList<Marker>()
     private val sharingMarkers = ArrayList<Marker>()
     private val repairMarkers = ArrayList<Marker>()
@@ -71,8 +65,9 @@ class MapActivity : MvpAppCompatActivity(), Drawer.OnDrawerItemClickListener,
 
     private var allPoints: ArrayList<PointModel>? = null
 
-    private val allMarkerArrays = arrayListOf(rentalMarkers, sharingMarkers, repairMarkers,
-            usefulMarkers, interestsMarkers, pathsMarkers)
+    private val allMarkerArrays = arrayListOf(rentalMarkers to CategoryType.rental, sharingMarkers to CategoryType.sharing,
+            repairMarkers to CategoryType.repair, usefulMarkers to CategoryType.stops,
+            interestsMarkers to CategoryType.interests, parkingMarkers to CategoryType.parking)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -87,20 +82,10 @@ class MapActivity : MvpAppCompatActivity(), Drawer.OnDrawerItemClickListener,
             setContentView(R.layout.activity_map)
             setupDrawer()
             initMap()
-//                        getPointsFromApi()
-            locationPermissionReceived(permissionGranted)
-            addKml()
+            presenter.getMapData()
         }
+        locationPermissionReceived(permissionGranted)
     }
-
-    private fun addKml() = launch(UI) {
-        val kmlDocument = KmlDocument()
-        async(CommonPool) { kmlDocument.parseKMLUrl(KML_LINK) }.await()
-        val kmlOverlay = kmlDocument.mKmlRoot.buildOverlay(osmMap, null, null, kmlDocument) as FolderOverlay
-        osmMap.overlays.add(kmlOverlay)
-        osmMap.invalidate()
-    }
-
 
     private fun addFragment(frag: Fragment, tag: String) {
         supportFragmentManager.popBackStack()
@@ -116,10 +101,6 @@ class MapActivity : MvpAppCompatActivity(), Drawer.OnDrawerItemClickListener,
             "FilterFragment" -> toolbarTitle.text = getString(R.string.menu_filter)
             "SupportMapFragment" -> toolbarTitle.text = getString(R.string.app_name)
         }
-    }
-
-    private fun getPointsFromApi() {
-        presenter.getMapData()
     }
 
     lateinit var drawer: Drawer
@@ -142,9 +123,9 @@ class MapActivity : MvpAppCompatActivity(), Drawer.OnDrawerItemClickListener,
 
     override fun onItemClick(view: View?, position: Int, drawerItem: IDrawerItem<*, *>?): Boolean {
         when (drawerItem?.identifier) {
-            MENU_ID_FILTER -> addFragment(getFilterFrag(), FilterFragment::class.java.simpleName)
+            MENU_ID_FILTER -> addFragment(FilterFragment.newInstance(), FilterFragment::class.java.simpleName)
             MENU_ID_BUILD_ROUTE -> addFragment(SampleCacheDownloader(), SampleCacheDownloader::class.java.simpleName)
-            MENU_ID_ADD_MARKER -> Unit
+            MENU_ID_ADD_MARKER -> osmMap.tileProvider.clearTileCache()
             MENU_ID_EVENTS -> Unit
             MENU_ID_FEED -> Unit
             MENU_ID_SEND_FEEDBACK -> addFragment(FeedbackFragment.newInstance(this), FeedbackFragment::class.java.simpleName)
@@ -158,13 +139,11 @@ class MapActivity : MvpAppCompatActivity(), Drawer.OnDrawerItemClickListener,
         Marker.ENABLE_TEXT_LABELS_WHEN_NO_IMAGE = true
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
 
-        osmMap.setTileSource(TileSourceFactory.MAPNIK)
+        osmMap.setTileSource(TileSourceFactory.HIKEBIKEMAP)
         osmMap.setBuiltInZoomControls(true)
         osmMap.setMultiTouchControls(true)
 
         enableRotation()
-
-        gotoLviv()
     }
 
     private fun enableRotation() {
@@ -176,31 +155,12 @@ class MapActivity : MvpAppCompatActivity(), Drawer.OnDrawerItemClickListener,
 
     override fun onResume() {
         super.onResume()
-        osmMap.onResume()
+        osmMap?.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        osmMap.onPause()
-    }
-
-    private fun getFilterFrag(): Fragment {
-        val frag = FilterFragment.newInstance(this)
-        FilterFragment.bikeRepairChecked = allMarkerArrays.contains(repairMarkers)
-        FilterFragment.bikeSharingChecked = allMarkerArrays.contains(sharingMarkers)
-        FilterFragment.rentalChecked = allMarkerArrays.contains(rentalMarkers)
-        FilterFragment.usefulChecked = allMarkerArrays.contains(usefulMarkers)
-        FilterFragment.interestChecked = allMarkerArrays.contains(interestsMarkers)
-        FilterFragment.pathChecked = allMarkerArrays.contains(pathsMarkers)
-        return frag
-    }
-
-    private fun setupMapStyle() {
-        try {
-//            osmMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json))
-        } catch (e: Resources.NotFoundException) {
-            Log.e(TAG, "Can't find style. Error: ", e)
-        }
+        osmMap?.onPause()
     }
 
     @SuppressLint("MissingPermission")
@@ -222,33 +182,22 @@ class MapActivity : MvpAppCompatActivity(), Drawer.OnDrawerItemClickListener,
 
     private fun gotoLviv() = gotoLocation(CAMERA_ZOOM_CITY.toDouble(), lvivGeo)
 
-    private fun gotoLocation(zoom: Double, geoPoint: GeoPoint) {
-        osmMap.controller.setZoom(zoom)
-        osmMap.controller.setCenter(geoPoint)
+    private fun gotoLocation(zoom: Double, geoPoint: GeoPoint) = osmMap.controller.apply {
+        setZoom(zoom)
+        setCenter(geoPoint)
     }
-
 
     override fun showMapData(pointsList: List<PointModel>) {
         allPoints = ArrayList(pointsList)
         sortMarkers(pointsList)
-        drawMarkers()
-
-//        parkings += allPoints!!.filter { it.feature.properties.category.id == CategoryType.parking }
-//                .map(::ParkingMarker)
-
-//        initCluster(parkings)
-    }
-
-    private fun drawMarkers() {
-        osmMap.overlays.clear()
-        allMarkerArrays.forEach { array -> array.forEach { it -> addMarkerToMap(it) } }
+        drawAllMarkers()
     }
 
     private fun sortMarkers(pointsList: List<PointModel>) {
         pointsList.forEach {
             when (it.feature.properties.category.id) {
                 CategoryType.interests -> interestsMarkers.add(createMarker(it))
-//                CategoryType.parking -> parkings.add(createMarker(it))
+                CategoryType.parking -> parkingMarkers.add(createMarker(it))
                 CategoryType.path -> pathsMarkers.add(createMarker(it))
                 CategoryType.rental -> rentalMarkers.add(createMarker(it))
                 CategoryType.repair -> repairMarkers.add(createMarker(it))
@@ -258,8 +207,6 @@ class MapActivity : MvpAppCompatActivity(), Drawer.OnDrawerItemClickListener,
         }
     }
 
-    private fun addMarkerToMap(it: Marker) = osmMap.overlays.add(it)
-
     private fun createMarker(it: PointModel) = Marker(osmMap).apply {
         position = GeoPoint(it.feature.geometry.coordinates.first()[1], it.feature.geometry.coordinates.first()[0])
         snippet = it.feature.properties.category.name
@@ -267,59 +214,46 @@ class MapActivity : MvpAppCompatActivity(), Drawer.OnDrawerItemClickListener,
         setIcon(getIcon(it))
     }
 
-//    private fun initCluster(parkings: ArrayList<ParkingMarker>) {
-//        clusterManager = ClusterManager(this, map)
-//        map.setOnCameraIdleListener(clusterManager)
-//        map.setOnMarkerClickListener(clusterManager)
-//        map.setOnInfoWindowClickListener(clusterManager)
-//        clusterManager.addItems(parkings)
-//        clusterManager.cluster()
-//    }
-
-
-    private fun getIcon(it: PointModel): Drawable? {
-        return when (it.feature.properties.category.id) {
-            CategoryType.interests -> getDrawable(R.drawable.ic_places_of_interest)
-            CategoryType.parking -> getDrawable(R.drawable.ic_parking)
-//            CategoryType.path -> null
-//            CategoryType.rental -> null
-            CategoryType.repair -> getDrawable(R.drawable.ic_repair)
-            CategoryType.sharing -> getDrawable(R.drawable.ic_bike_sharing)
-            CategoryType.stops -> getDrawable(R.drawable.ic_useful_stops)
-            else -> getDrawable(R.drawable.ic_pin_drop_black_24dp)
-
-        }
+    private fun drawAllMarkers() {
+        osmMap.overlays.clear()
+        allMarkerArrays.forEach { if (categoryChecked(this, it.second)) it.first.forEach(this::addMarkerToMap) }
+        osmMap.invalidate()
     }
+
+    private fun addMarkerToMap(it: Marker) {
+        osmMap.overlays.add(it)
+    }
+
+    private fun getIcon(it: PointModel) = getDrawable(
+            when (it.feature.properties.category.id) {
+                CategoryType.interests -> R.drawable.ic_places_of_interest
+                CategoryType.parking -> R.drawable.ic_parking
+                CategoryType.rental -> R.drawable.ic_bike_store
+                CategoryType.repair -> R.drawable.ic_repair
+                CategoryType.sharing -> R.drawable.ic_bike_sharing
+                CategoryType.stops -> R.drawable.ic_useful_stops
+                else -> R.drawable.ic_pin_drop_black_24dp
+            })
+
 
     override fun onFiltersSelected(typeId: String, checked: Boolean) {
         Log.d(TAG, "string $typeId")
-        when (typeId) {
-            CategoryType.interests -> manageMarkerArrayVisibility(interestsMarkers, checked)
-            CategoryType.path -> manageMarkerArrayVisibility(pathsMarkers, checked)
-            CategoryType.rental -> manageMarkerArrayVisibility(rentalMarkers, checked)
-            CategoryType.repair -> manageMarkerArrayVisibility(repairMarkers, checked)
-            CategoryType.sharing -> manageMarkerArrayVisibility(sharingMarkers, checked)
-            CategoryType.stops -> manageMarkerArrayVisibility(usefulMarkers, checked)
+        val array: ArrayList<Marker>? = when (typeId) {
+            CategoryType.interests -> interestsMarkers
+            CategoryType.rental -> rentalMarkers
+            CategoryType.repair -> repairMarkers
+            CategoryType.sharing -> sharingMarkers
+            CategoryType.stops -> usefulMarkers
+            CategoryType.parking -> parkingMarkers
+//            CategoryType.path -> pathsMarkers
+            else -> null
 
-//            CategoryType.parking -> {
-//                if (!checked && clusterManager != null) {
-//                    clusterManager.clearItems()
-//                } else {
-//                    clusterManager.addItems(parkings)
-//                }
-//                clusterManager.cluster()
-//            }
         }
-        drawMarkers()
+        array?.apply { manageMarkerArrayVisibility(array, checked) }
     }
 
-    private fun manageMarkerArrayVisibility(list: ArrayList<Marker>, checked: Boolean) {
-        if (checked && !allMarkerArrays.contains(list)) {
-            allMarkerArrays.add(list)
-        } else if (allMarkerArrays.contains(list)) {
-            allMarkerArrays.remove(list)
-        }
-    }
+    private fun manageMarkerArrayVisibility(list: ArrayList<Marker>, checked: Boolean) =
+            list.forEach { if (checked) addMarkerToMap(it) else it.remove(osmMap) }
 
     override fun showMapDataLoadingError(errorMsg: String) {
         Log.e("$TAG!!!", errorMsg)
@@ -363,11 +297,10 @@ class MapActivity : MvpAppCompatActivity(), Drawer.OnDrawerItemClickListener,
     companion object {
         val TAG = MapActivity::class.java.simpleName!!
 
-        //        const val KML_LINK = "http://mapsengine.google.com/map/kml?forcekml=1&mid=17CFIZP5JAJ7MHn1yImtXLz16kuY"
-        const val KML_LINK = "http://www.google.com/maps/d/u/0/kml?forcekml=1&mid=17CFIZP5JAJ7MHn1yImtXLz16kuY"
+//        const val KML_LINK = "http://www.google.com/maps/d/u/0/kml?forcekml=1&mid=17CFIZP5JAJ7MHn1yImtXLz16kuY"
 
         const val CAMERA_ZOOM_CITY = 12
-        const val CAMERA_ZOOM_LOCATION = 20
+        const val CAMERA_ZOOM_LOCATION = 16
 
         const val LVIV_LAT = 49.839683
         const val LVIV_LNG = 24.029717
