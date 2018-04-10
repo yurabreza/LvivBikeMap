@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:drawable="@color/colorPrimary"/>
+    <item android:drawable="@color/white"/>
 
     <item
         android:right="40dp"
-        android:left="40dp">
+        android:left="40dp"
+        android:start="40dp"
+        android:end="40dp">
         <bitmap
             android:gravity="center"
-            android:src="@drawable/ic_splash"/>
+            android:src="@drawable/ic_splash2"/>
     </item>
 
 </layer-list>

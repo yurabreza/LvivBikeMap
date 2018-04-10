@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -32,6 +33,7 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import javax.inject.Inject
 import javax.inject.Provider
@@ -61,13 +63,14 @@ class MapActivity : MvpAppCompatActivity(),
     private val repairMarkers = ArrayList<Marker>()
     private val usefulMarkers = ArrayList<Marker>()
     private val interestsMarkers = ArrayList<Marker>()
-    private val pathsMarkers = ArrayList<Marker>()
+    private val pathsPolylines = ArrayList<Polyline>()
 
     private var allPoints: ArrayList<PointModel>? = null
 
-    private val allMarkerArrays = arrayListOf(rentalMarkers to CategoryType.rental, sharingMarkers to CategoryType.sharing,
-            repairMarkers to CategoryType.repair, usefulMarkers to CategoryType.stops,
-            interestsMarkers to CategoryType.interests, parkingMarkers to CategoryType.parking)
+    private val allMarkerArrays = arrayListOf(rentalMarkers to CategoryType.rental,
+            sharingMarkers to CategoryType.sharing, repairMarkers to CategoryType.repair,
+            usefulMarkers to CategoryType.stops, interestsMarkers to CategoryType.interests,
+            parkingMarkers to CategoryType.parking)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -125,18 +128,16 @@ class MapActivity : MvpAppCompatActivity(),
         when (drawerItem?.identifier) {
             MENU_ID_FILTER -> addFragment(FilterFragment.newInstance(), FilterFragment::class.java.simpleName)
             MENU_ID_BUILD_ROUTE -> addFragment(SampleCacheDownloader(), SampleCacheDownloader::class.java.simpleName)
-            MENU_ID_ADD_MARKER -> osmMap.tileProvider.clearTileCache()
+            MENU_ID_ADD_MARKER -> Unit
             MENU_ID_EVENTS -> Unit
             MENU_ID_FEED -> Unit
             MENU_ID_SEND_FEEDBACK -> addFragment(FeedbackFragment.newInstance(this), FeedbackFragment::class.java.simpleName)
             MENU_ID_ABOUT_INFO -> addFragment(AboutFragment.newInstance(), AboutFragment::class.java.simpleName)
-
         }
         return false
     }
 
     private fun initMap() {
-        Marker.ENABLE_TEXT_LABELS_WHEN_NO_IMAGE = true
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
 
         osmMap.setTileSource(TileSourceFactory.HIKEBIKEMAP)
@@ -190,7 +191,7 @@ class MapActivity : MvpAppCompatActivity(),
     override fun showMapData(pointsList: List<PointModel>) {
         allPoints = ArrayList(pointsList)
         sortMarkers(pointsList)
-        drawAllMarkers()
+        drawAllOverlays()
     }
 
     private fun sortMarkers(pointsList: List<PointModel>) {
@@ -198,24 +199,32 @@ class MapActivity : MvpAppCompatActivity(),
             when (it.feature.properties.category.id) {
                 CategoryType.interests -> interestsMarkers.add(createMarker(it))
                 CategoryType.parking -> parkingMarkers.add(createMarker(it))
-                CategoryType.path -> pathsMarkers.add(createMarker(it))
                 CategoryType.rental -> rentalMarkers.add(createMarker(it))
                 CategoryType.repair -> repairMarkers.add(createMarker(it))
                 CategoryType.sharing -> sharingMarkers.add(createMarker(it))
                 CategoryType.stops -> usefulMarkers.add(createMarker(it))
+                CategoryType.path -> pathsPolylines.add(createPolyline(it))
             }
         }
     }
 
+    private fun createPolyline(it: PointModel) = Polyline().apply {
+        points = it.feature.geometry.coordinates.map { list: List<Double> -> getGeoPoint(list) }
+        color = ContextCompat.getColor(this@MapActivity, R.color.materialRed400)
+    }
+
+    private fun getGeoPoint(it: List<Double>) = GeoPoint(it[1], it[0])
+
     private fun createMarker(it: PointModel) = Marker(osmMap).apply {
-        position = GeoPoint(it.feature.geometry.coordinates.first()[1], it.feature.geometry.coordinates.first()[0])
+        position = getGeoPoint(it.feature.geometry.coordinates.first())
         snippet = it.feature.properties.category.name
         title = it.feature.properties.name
         setIcon(getIcon(it))
     }
 
-    private fun drawAllMarkers() {
+    private fun drawAllOverlays() {
         osmMap.overlays.clear()
+        if (categoryChecked(this, CategoryType.path)) pathsPolylines.forEach { osmMap.overlays.add(it) }
         allMarkerArrays.forEach { if (categoryChecked(this, it.second)) it.first.forEach(this::addMarkerToMap) }
         osmMap.invalidate()
     }
@@ -238,18 +247,15 @@ class MapActivity : MvpAppCompatActivity(),
 
     override fun onFiltersSelected(typeId: String, checked: Boolean) {
         Log.d(TAG, "string $typeId")
-        val array: ArrayList<Marker>? = when (typeId) {
-            CategoryType.interests -> interestsMarkers
-            CategoryType.rental -> rentalMarkers
-            CategoryType.repair -> repairMarkers
-            CategoryType.sharing -> sharingMarkers
-            CategoryType.stops -> usefulMarkers
-            CategoryType.parking -> parkingMarkers
-//            CategoryType.path -> pathsMarkers
-            else -> null
-
+        when (typeId) {
+            CategoryType.interests -> manageMarkerArrayVisibility(interestsMarkers, checked)
+            CategoryType.rental -> manageMarkerArrayVisibility(rentalMarkers, checked)
+            CategoryType.repair -> manageMarkerArrayVisibility(repairMarkers, checked)
+            CategoryType.sharing -> manageMarkerArrayVisibility(sharingMarkers, checked)
+            CategoryType.stops -> manageMarkerArrayVisibility(usefulMarkers, checked)
+            CategoryType.parking -> manageMarkerArrayVisibility(parkingMarkers, checked)
+            CategoryType.path -> pathsPolylines.forEach { if (checked) osmMap.overlays.add(it) else osmMap.overlays.remove(it) }
         }
-        array?.apply { manageMarkerArrayVisibility(array, checked) }
     }
 
     private fun manageMarkerArrayVisibility(list: ArrayList<Marker>, checked: Boolean) =
