@@ -3,6 +3,7 @@ package com.hack.kind.lvivbikemap.presentation.map.view
 import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Environment
 import android.preference.PreferenceManager
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
@@ -30,11 +31,12 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_map.*
 import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
+import java.io.*
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -138,13 +140,63 @@ class MapActivity : MvpAppCompatActivity(),
     }
 
     private fun initMap() {
+
+
+        copyAssets()
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
 
-        osmMap.setTileSource(TileSourceFactory.HIKEBIKEMAP)
+//        osmMap.setTileSource(TileSourceFactory.HIKEBIKEMAP)
+        enableRotation()
+//osmMap.setTileSource(OfflineTileProvider())
+        osmMap.setTileSource(XYTileSource(
+                "Unnamed atlas",
+                0,
+                18,
+                256,
+                ".jpg",
+                arrayOf()))
+        //....
+        osmMap.setUseDataConnection(false)//optional, but a good way to prevent loading from the network and test your zip loading.
+        val mapController = osmMap.controller
+        mapController.setZoom(CAMERA_ZOOM_CITY)
+        mapController.setCenter(lvivGeo)
+
+
         osmMap.setBuiltInZoomControls(true)
         osmMap.setMultiTouchControls(true)
+    }
 
-        enableRotation()
+    private fun copyAssets() {
+        try {
+//            val file = assets.open("atlas.sqlite")
+            val fileName = "atlas.sqlite"
+//            for (filename in files) {
+            val inStream: InputStream? = assets.open(fileName)
+            var out: OutputStream?
+
+            val outDir = Environment.getExternalStorageDirectory().path + "/osmdroid/"
+
+            val outFile = File(outDir, fileName)
+
+            out = FileOutputStream(outFile)
+            copyFile(inStream!!, out)
+            inStream.close()
+            out.flush()
+            out.close()
+
+//            }
+        } catch (e: IOException) {
+            Log.e("tag", "Failed to copy asset file: ", e)
+        }
+    }
+
+    private fun copyFile(inStream: InputStream, out: OutputStream) {
+        val buffer = ByteArray(1024)
+        var read: Int = inStream.read(buffer)
+        while (read != -1) {
+            out.write(buffer, 0, read)
+            read = inStream.read(buffer)
+        }
     }
 
     private fun enableRotation() {

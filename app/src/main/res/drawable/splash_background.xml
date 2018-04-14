@@ -5,10 +5,9 @@
 
     <item
         android:right="40dp"
-        android:left="40dp"
-        android:start="40dp"
-        android:end="40dp">
+        android:left="40dp">
         <bitmap
+
             android:gravity="center"
             android:src="@drawable/ic_splash2"/>
     </item>
