@@ -3,6 +3,8 @@ package com.hack.kind.lvivbikemap.presentation.map.view
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationProvider
 import android.os.Bundle
 import android.os.Environment
 import android.preference.PreferenceManager
@@ -38,6 +40,9 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
+import org.osmdroid.views.overlay.mylocation.IMyLocationConsumer
+import org.osmdroid.views.overlay.mylocation.IMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import java.io.*
 import javax.inject.Inject
 import javax.inject.Provider
@@ -69,12 +74,10 @@ class MapActivity : MvpAppCompatActivity(),
     private val interestsMarkers = ArrayList<Marker>()
     private val pathsPolylines = ArrayList<Polyline>()
 
-    private var allPoints: ArrayList<PointModel>? = null
-
-    private val allMarkerArrays = arrayListOf(rentalMarkers to CategoryType.rental,
-            sharingMarkers to CategoryType.sharing, repairMarkers to CategoryType.repair,
-            usefulMarkers to CategoryType.stops, interestsMarkers to CategoryType.interests,
-            parkingMarkers to CategoryType.parking)
+    private val allMarkerArrays = arrayListOf(
+            rentalMarkers to CategoryType.rental, sharingMarkers to CategoryType.sharing,
+            repairMarkers to CategoryType.repair, usefulMarkers to CategoryType.stops,
+            interestsMarkers to CategoryType.interests, parkingMarkers to CategoryType.parking)
 
     lateinit var drawer: Drawer
 
@@ -102,10 +105,12 @@ class MapActivity : MvpAppCompatActivity(),
     }
 
     private fun addFragment(frag: Fragment, tag: String) {
+        faButton.visibility = View.GONE
         supportFragmentManager.popBackStack()
         supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, frag, tag).addToBackStack(null).commit()
         fragmentContainer.visibility = View.VISIBLE
         updateToolbar(frag)
+
     }
 
     private fun updateToolbar(frag: Fragment) {
@@ -122,10 +127,10 @@ class MapActivity : MvpAppCompatActivity(),
                 .withActivity(this)
                 .addDrawerItems(
                         PrimaryDrawerItem().withIdentifier(MENU_ID_FILTER).withIcon(R.drawable.ic_filter_list_black_24dp).withName(getString(R.string.menu_filter)),
-                        PrimaryDrawerItem().withIdentifier(MENU_ID_BUILD_ROUTE).withIcon(R.drawable.ic_motorcycle_black_24dp).withName(getString(R.string.menu_build_route)),
-                        PrimaryDrawerItem().withIdentifier(MENU_ID_ADD_MARKER).withIcon(R.drawable.ic_pin_drop_black_24dp).withName(getString(R.string.menu_add_marker)),
-                        PrimaryDrawerItem().withIdentifier(MENU_ID_EVENTS).withIcon(R.drawable.ic_event_black_24dp).withName(getString(R.string.menu_events)),
-                        PrimaryDrawerItem().withIdentifier(MENU_ID_FEED).withIcon(R.drawable.ic_dns_black_24dp).withName(getString(R.string.menu_feed)),
+//                        PrimaryDrawerItem().withIdentifier(MENU_ID_BUILD_ROUTE).withIcon(R.drawable.ic_motorcycle_black_24dp).withName(getString(R.string.menu_build_route)),
+//                        PrimaryDrawerItem().withIdentifier(MENU_ID_ADD_MARKER).withIcon(R.drawable.ic_pin_drop_black_24dp).withName(getString(R.string.menu_add_marker)),
+//                        PrimaryDrawerItem().withIdentifier(MENU_ID_EVENTS).withIcon(R.drawable.ic_event_black_24dp).withName(getString(R.string.menu_events)),
+//                        PrimaryDrawerItem().withIdentifier(MENU_ID_FEED).withIcon(R.drawable.ic_dns_black_24dp).withName(getString(R.string.menu_feed)),
                         PrimaryDrawerItem().withIdentifier(MENU_ID_SEND_FEEDBACK).withIcon(R.drawable.ic_feedback_black_24dp).withName(getString(R.string.menu_send_feedback)),
                         PrimaryDrawerItem().withIdentifier(MENU_ID_ABOUT_INFO).withIcon(R.drawable.ic_info_black_24dp).withName(getString(R.string.menu_about_info)))
                 .withOnDrawerItemClickListener(this)
@@ -137,10 +142,10 @@ class MapActivity : MvpAppCompatActivity(),
     override fun onItemClick(view: View?, position: Int, drawerItem: IDrawerItem<*, *>?): Boolean {
         when (drawerItem?.identifier) {
             MENU_ID_FILTER -> addFragment(FilterFragment.newInstance(), FilterFragment::class.java.simpleName)
-            MENU_ID_BUILD_ROUTE -> addFragment(SampleCacheDownloader(), SampleCacheDownloader::class.java.simpleName)
-            MENU_ID_ADD_MARKER -> Unit
-            MENU_ID_EVENTS -> Unit
-            MENU_ID_FEED -> Unit
+//            MENU_ID_BUILD_ROUTE -> addFragment(SampleCacheDownloader(), SampleCacheDownloader::class.java.simpleName)
+//            MENU_ID_ADD_MARKER -> Unit
+//            MENU_ID_EVENTS -> Unit
+//            MENU_ID_FEED -> Unit
             MENU_ID_SEND_FEEDBACK -> addFragment(FeedbackFragment.newInstance(this), FeedbackFragment::class.java.simpleName)
             MENU_ID_ABOUT_INFO -> addFragment(AboutFragment.newInstance(), AboutFragment::class.java.simpleName)
         }
@@ -151,17 +156,15 @@ class MapActivity : MvpAppCompatActivity(),
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
 
         osmMap.setTileSource(TileSourceFactory.HIKEBIKEMAP)
-        enableRotation()
 
-        osmMap.setBuiltInZoomControls(true)
-        osmMap.setMultiTouchControls(true)
-    }
-
-    private fun enableRotation() {
         val rotationGestureOverlay = RotationGestureOverlay(this, osmMap)
         rotationGestureOverlay.isEnabled = true
-        osmMap.setMultiTouchControls(true)
         osmMap.overlays.add(rotationGestureOverlay)
+        osmMap.setBuiltInZoomControls(false)
+
+        osmMap.overlays.add(MyLocationNewOverlay(osmMap))
+        osmMap.setMultiTouchControls(true)
+        osmMap.postInvalidate()
     }
 
     override fun onResume() {
@@ -177,6 +180,7 @@ class MapActivity : MvpAppCompatActivity(),
     @SuppressLint("MissingPermission")
     private fun locationPermissionReceived(granted: Boolean) {
         if (granted) {
+            faButton.visibility = View.VISIBLE
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
             fusedLocationClient.lastLocation.addOnSuccessListener {
                 if (it != null) {
@@ -187,6 +191,7 @@ class MapActivity : MvpAppCompatActivity(),
                 }
             }
         } else {
+            faButton.visibility = View.GONE
             gotoLviv()
         }
     }
@@ -199,7 +204,6 @@ class MapActivity : MvpAppCompatActivity(),
     }
 
     override fun showMapData(pointsList: List<PointModel>) {
-        allPoints = ArrayList(pointsList)
         sortMarkers(pointsList)
         drawAllOverlays()
     }
@@ -233,7 +237,6 @@ class MapActivity : MvpAppCompatActivity(),
     }
 
     private fun drawAllOverlays() {
-        osmMap.overlays.clear()
         if (categoryChecked(this, CategoryType.path)) pathsPolylines.forEach { osmMap.overlays.add(it) }
         allMarkerArrays.forEach { if (categoryChecked(this, it.second)) it.first.forEach(this::addMarkerToMap) }
         osmMap.invalidate()
@@ -266,6 +269,7 @@ class MapActivity : MvpAppCompatActivity(),
             CategoryType.parking -> manageMarkerArrayVisibility(parkingMarkers, checked)
             CategoryType.path -> pathsPolylines.forEach { if (checked) osmMap.overlays.add(it) else osmMap.overlays.remove(it) }
         }
+        osmMap.controller.zoomOut()
     }
 
     private fun manageMarkerArrayVisibility(list: ArrayList<Marker>, checked: Boolean) =
@@ -297,6 +301,7 @@ class MapActivity : MvpAppCompatActivity(),
             fragmentContainer.visibility = View.GONE
             supportFragmentManager.popBackStack()
             toolbarTitle.text = getString(R.string.app_name)
+            faButton.visibility = View.VISIBLE
         }
     }
 
@@ -312,7 +317,6 @@ class MapActivity : MvpAppCompatActivity(),
 
     companion object {
         val TAG = MapActivity::class.java.simpleName!!
-
 //        const val KML_LINK = "http://www.google.com/maps/d/u/0/kml?forcekml=1&mid=17CFIZP5JAJ7MHn1yImtXLz16kuY"
 
         const val CAMERA_ZOOM_CITY = 12

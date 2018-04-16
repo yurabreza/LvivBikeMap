@@ -14,32 +14,31 @@ import com.nytimes.android.external.store3.middleware.GsonTransformerFactory
 import io.reactivex.Single
 import okio.BufferedSource
 
-class MapDataRepositoryImpl(private val mApi: ApiInterface) : MapDataRepository {
+class MapDataRepositoryImpl(private val mApi: ApiInterface,private val gson: Gson) : MapDataRepository {
+
+    val type = object : TypeToken<List<PointModel>>() {}.type!!
 
     override fun getMapData(): Single<List<PointModel>> {
-        return get(BarCode("41", "42"))
+        return get(BarCode(BARCODE_TYPE, BARCODE_KEY))
     }
 
     private val fetcher = { apiService: ApiInterface, id: Int ->
         apiService.getPoints().compose(
-                GsonTransformerFactory.createObjectToSourceTransformer<List<PointModel>>(Gson())
+                GsonTransformerFactory.createObjectToSourceTransformer<List<PointModel>>(gson)
         )
     }
-    private val persister = SourcePersisterFactory.create(App.Companion.cacheDirect)
-
-    val type = object : TypeToken<List<PointModel>>() {}.type!!
-    private val parser = GsonParserFactory.createSourceParser<List<PointModel>>(Gson(), type)
 
     private val myStore =
             StoreBuilder.parsedWithKey<BarCode, BufferedSource, List<PointModel>>()
                     .fetcher { barcode -> fetcher(mApi, barcode.key.toInt()) }
-                    .persister(persister)
-                    .parser(parser)
+                    .persister(SourcePersisterFactory.create(App.Companion.cacheDirect))
+                    .parser(GsonParserFactory.createSourceParser<List<PointModel>>(gson, type))
                     .open()
 
-    fun get(barcode: BarCode) = myStore.get(barcode)
+    private fun get(barcode: BarCode) = myStore.get(barcode)
 
-    fun fetch(barcode: BarCode) = myStore.fetch(barcode)
-
-
+    companion object {
+        const val BARCODE_KEY = "41"
+        const val BARCODE_TYPE = "42"
+    }
 }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LvivBikeMap</string>
+    <string name="btn_send_feedback_text">Відправити</string>
+    <string name="btn_submit_filters">Підтвердити</string>
+    <string name="comment_hint">Зворотній зв\'язок</string>
+    <string name="email_label">Відправте нам листа</string>
+    <string name="feedback_send_error">Помилка відпраки відгуку</string>
+    <string name="feedback_send_successfuly">Відгук успішно відправлено</string>
+    <string name="filter_bicycle_path">Велосипедний шлях</string>
+    <string name="filter_bike_parking">Вело паркування</string>
+    <string name="filter_bike_rental">Оренда велосипедів</string>
+    <string name="filter_bike_repair">Вело ремонт</string>
+    <string name="filter_places_of_interest">Цікаві місця</string>
+    <string name="filter_public_bike_sharing">Громадський обмін велосипелами</string>
+    <string name="filter_useful_stops">Корсині зупинки</string>
+    <string name="full_name_hint">ім\'я</string>
+    <string name="menu_about_info">Про додаток</string>
+    <string name="menu_add_marker">Додати новий маркер</string>
+    <string name="menu_build_route">Побудувати шлях</string>
+    <string name="menu_events">Події</string>
+    <string name="menu_feed">Новини</string>
+    <string name="menu_filter">Фільтри</string>
+    <string name="menu_send_feedback">Відправити відгук</string>
+    <string name="points_load_error">Помилка завантаження маркерів</string>
+    <string name="points_load_successfuly">Маркери завантажені успішно</string>
+    <string name="title_activity_map">Карта</string>
+    <string name="valid_comment_error">уведіть відгук</string>
+    <string name="valid_email_error">введіть правильний імейл</string>
+    <string name="valid_name_error">введіть ваше ім\'я</string>
+</resources>

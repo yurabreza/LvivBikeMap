@@ -19,7 +19,7 @@
     <string name="email_hint">email</string>
     <string name="comment_hint">feedback</string>
     <string name="btn_send_feedback_text">send</string>
-    <string name="feedback_send_successfuly">feedback send successfully</string>
+    <string name="feedback_send_successfuly">feedback sent successfully</string>
     <string name="feedback_send_error">Error when sending feedback</string>
     <string name="valid_email_error">enter valid email</string>
     <string name="valid_name_error">enter your name</string>
