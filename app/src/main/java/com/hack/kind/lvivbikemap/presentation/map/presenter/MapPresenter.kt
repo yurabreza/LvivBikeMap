@@ -31,7 +31,7 @@ class MapPresenter(private val mapRepo: MapDataRepository, private val userRepo:
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { viewState.showLoading() }
-                .doAfterTerminate({ viewState.hideLoading() })
+                .doAfterTerminate{ viewState.hideLoading() }
                 .subscribe({ response -> viewState.showFeedbackSendSuccess(response) },
                         { throwable -> viewState.showFeedbackSendError(throwable.message!!) }))
     }

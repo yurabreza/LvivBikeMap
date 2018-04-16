@@ -2,6 +2,7 @@ package com.hack.kind.lvivbikemap.presentation.map.view
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
 import android.preference.PreferenceManager
@@ -31,6 +32,7 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_map.*
 import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.Marker
@@ -74,6 +76,8 @@ class MapActivity : MvpAppCompatActivity(),
             usefulMarkers to CategoryType.stops, interestsMarkers to CategoryType.interests,
             parkingMarkers to CategoryType.parking)
 
+    lateinit var drawer: Drawer
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
@@ -85,6 +89,11 @@ class MapActivity : MvpAppCompatActivity(),
     private fun onRequestPermissionSuccess(permissionGranted: Boolean) {
         if (permissionGranted) {
             setContentView(R.layout.activity_map)
+            faButton.setOnClickListener {
+                locationPermissionReceived(
+                        ContextCompat.checkSelfPermission(this,
+                                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            }
             setupDrawer()
             initMap()
             presenter.getMapData()
@@ -108,7 +117,6 @@ class MapActivity : MvpAppCompatActivity(),
         }
     }
 
-    lateinit var drawer: Drawer
     private fun setupDrawer() {
         drawer = DrawerBuilder()
                 .withActivity(this)
@@ -140,63 +148,13 @@ class MapActivity : MvpAppCompatActivity(),
     }
 
     private fun initMap() {
-
-
-        copyAssets()
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
 
-//        osmMap.setTileSource(TileSourceFactory.HIKEBIKEMAP)
+        osmMap.setTileSource(TileSourceFactory.HIKEBIKEMAP)
         enableRotation()
-//osmMap.setTileSource(OfflineTileProvider())
-        osmMap.setTileSource(XYTileSource(
-                "Unnamed atlas",
-                0,
-                18,
-                256,
-                ".jpg",
-                arrayOf()))
-        //....
-        osmMap.setUseDataConnection(false)//optional, but a good way to prevent loading from the network and test your zip loading.
-        val mapController = osmMap.controller
-        mapController.setZoom(CAMERA_ZOOM_CITY)
-        mapController.setCenter(lvivGeo)
-
 
         osmMap.setBuiltInZoomControls(true)
         osmMap.setMultiTouchControls(true)
-    }
-
-    private fun copyAssets() {
-        try {
-//            val file = assets.open("atlas.sqlite")
-            val fileName = "atlas.sqlite"
-//            for (filename in files) {
-            val inStream: InputStream? = assets.open(fileName)
-            var out: OutputStream?
-
-            val outDir = Environment.getExternalStorageDirectory().path + "/osmdroid/"
-
-            val outFile = File(outDir, fileName)
-
-            out = FileOutputStream(outFile)
-            copyFile(inStream!!, out)
-            inStream.close()
-            out.flush()
-            out.close()
-
-//            }
-        } catch (e: IOException) {
-            Log.e("tag", "Failed to copy asset file: ", e)
-        }
-    }
-
-    private fun copyFile(inStream: InputStream, out: OutputStream) {
-        val buffer = ByteArray(1024)
-        var read: Int = inStream.read(buffer)
-        while (read != -1) {
-            out.write(buffer, 0, read)
-            read = inStream.read(buffer)
-        }
     }
 
     private fun enableRotation() {
@@ -222,8 +180,8 @@ class MapActivity : MvpAppCompatActivity(),
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
             fusedLocationClient.lastLocation.addOnSuccessListener {
                 if (it != null) {
-                    osmMap.controller.setZoom(CAMERA_ZOOM_LOCATION)
-                    osmMap.controller.setCenter(GeoPoint(it.latitude, it.longitude))
+                    osmMap?.controller?.setZoom(CAMERA_ZOOM_LOCATION)
+                    osmMap?.controller?.setCenter(GeoPoint(it.latitude, it.longitude))
                 } else {
                     gotoLviv()
                 }
@@ -235,9 +193,9 @@ class MapActivity : MvpAppCompatActivity(),
 
     private fun gotoLviv() = gotoLocation(CAMERA_ZOOM_CITY.toDouble(), lvivGeo)
 
-    private fun gotoLocation(zoom: Double, geoPoint: GeoPoint) = osmMap.controller.apply {
-        setZoom(zoom)
-        setCenter(geoPoint)
+    private fun gotoLocation(zoom: Double, geoPoint: GeoPoint) = osmMap?.controller.apply {
+        this?.setZoom(zoom)
+        this?.setCenter(geoPoint)
     }
 
     override fun showMapData(pointsList: List<PointModel>) {

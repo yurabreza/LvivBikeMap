@@ -9,6 +9,7 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import io.fabric.sdk.android.BuildConfig
 import io.fabric.sdk.android.Fabric
+import java.io.File
 import javax.inject.Inject
 
 
@@ -20,10 +21,15 @@ class App : Application(), HasActivityInjector {
 
     override fun onCreate() {
         super.onCreate()
+        cacheDirect = this.cacheDir
         DaggerAppComponent.builder()
                 .dataComponent(DaggerDataComponent.builder().application(this).build())
                 .build()
                 .inject(this)
-        if (!BuildConfig.DEBUG)  Fabric.with(this, Crashlytics())
+        if (!BuildConfig.DEBUG) Fabric.with(this, Crashlytics())
+    }
+
+    companion object {
+        lateinit var cacheDirect: File
     }
 }

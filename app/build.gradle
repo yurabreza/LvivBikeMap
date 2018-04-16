@@ -38,6 +38,10 @@ android {
             coroutines "enable"
         }
     }
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
 }
 
 kapt {
@@ -93,6 +97,9 @@ dependencies {
     implementation 'org.osmdroid:osmdroid-android:6.0.1'
     implementation 'com.github.MKergall:osmbonuspack:6.5.1'
 
+    //store
+    implementation 'com.nytimes.android:store3:3.0.1'
+    implementation 'com.nytimes.android:middleware3:3.0.1'
     //croutines
 //    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5'
 //    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.5'
