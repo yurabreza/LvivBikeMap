@@ -31,6 +31,10 @@
             android:textStyle="bold"/>
 
     </LinearLayout>
+    <View
+        android:background="@drawable/shadow"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"/>
 
     <FrameLayout
         android:layout_width="match_parent"
