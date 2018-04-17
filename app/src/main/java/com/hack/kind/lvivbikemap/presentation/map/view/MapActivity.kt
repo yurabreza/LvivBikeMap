@@ -84,25 +84,19 @@ class MapActivity : MvpAppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        RxPermissions(this)
-                .request(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .subscribe(this::onRequestPermissionSuccess, Throwable::printStackTrace)
+        setContentView(R.layout.activity_map)
+        faButton.setOnClickListener {
+            locationPermissionReceived(
+                    ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+        }
+        setupDrawer()
+        initMap()
+        presenter.getMapData()
+
+        locationPermissionReceived(true)
     }
 
-    private fun onRequestPermissionSuccess(permissionGranted: Boolean) {
-        if (permissionGranted) {
-            setContentView(R.layout.activity_map)
-            faButton.setOnClickListener {
-                locationPermissionReceived(
-                        ContextCompat.checkSelfPermission(this,
-                                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-            }
-            setupDrawer()
-            initMap()
-            presenter.getMapData()
-        }
-        locationPermissionReceived(permissionGranted)
-    }
 
     private fun addFragment(frag: Fragment, tag: String) {
         faButton.visibility = View.GONE
@@ -153,8 +147,6 @@ class MapActivity : MvpAppCompatActivity(),
     }
 
     private fun initMap() {
-        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
-
         osmMap.setTileSource(TileSourceFactory.HIKEBIKEMAP)
 
         val rotationGestureOverlay = RotationGestureOverlay(this, osmMap)
