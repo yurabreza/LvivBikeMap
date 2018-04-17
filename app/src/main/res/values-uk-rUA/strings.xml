@@ -10,7 +10,7 @@
     <string name="filter_bicycle_path">Велосипедний шлях</string>
     <string name="filter_bike_parking">Вело паркування</string>
     <string name="filter_bike_rental">Оренда велосипедів</string>
-    <string name="filter_bike_repair">Вело ремонт</string>
+    <string name="filter_bike_repair">Веломайстерні</string>
     <string name="filter_places_of_interest">Цікаві місця</string>
     <string name="filter_public_bike_sharing">Громадський обмін велосипелами</string>
     <string name="filter_useful_stops">Корсині зупинки</string>

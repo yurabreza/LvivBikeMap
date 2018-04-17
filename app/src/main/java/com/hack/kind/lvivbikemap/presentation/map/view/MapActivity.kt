@@ -147,7 +147,7 @@ class MapActivity : MvpAppCompatActivity(),
     }
 
     private fun initMap() {
-        osmMap.setTileSource(TileSourceFactory.HIKEBIKEMAP)
+        osmMap.setTileSource(TileSourceFactory.MAPNIK)
 
         val rotationGestureOverlay = RotationGestureOverlay(this, osmMap)
         rotationGestureOverlay.isEnabled = true
