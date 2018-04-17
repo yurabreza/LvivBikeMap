@@ -3,11 +3,7 @@ package com.hack.kind.lvivbikemap.presentation.map.view
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationProvider
 import android.os.Bundle
-import android.os.Environment
-import android.preference.PreferenceManager
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.util.Log
@@ -30,20 +26,14 @@ import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
-import com.tbruyelle.rxpermissions2.RxPermissions
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_map.*
-import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
-import org.osmdroid.views.overlay.mylocation.IMyLocationConsumer
-import org.osmdroid.views.overlay.mylocation.IMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-import java.io.*
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -120,9 +110,9 @@ class MapActivity : MvpAppCompatActivity(),
         drawer = DrawerBuilder()
                 .withActivity(this)
                 .addDrawerItems(
+                        PrimaryDrawerItem().withIdentifier(MENU_ID_MAP).withIcon(R.drawable.ic_pin_drop_black_24dp).withName(getString(R.string.title_activity_map)),
                         PrimaryDrawerItem().withIdentifier(MENU_ID_FILTER).withIcon(R.drawable.ic_filter_list_black_24dp).withName(getString(R.string.menu_filter)),
 //                        PrimaryDrawerItem().withIdentifier(MENU_ID_BUILD_ROUTE).withIcon(R.drawable.ic_motorcycle_black_24dp).withName(getString(R.string.menu_build_route)),
-//                        PrimaryDrawerItem().withIdentifier(MENU_ID_ADD_MARKER).withIcon(R.drawable.ic_pin_drop_black_24dp).withName(getString(R.string.menu_add_marker)),
 //                        PrimaryDrawerItem().withIdentifier(MENU_ID_EVENTS).withIcon(R.drawable.ic_event_black_24dp).withName(getString(R.string.menu_events)),
 //                        PrimaryDrawerItem().withIdentifier(MENU_ID_FEED).withIcon(R.drawable.ic_dns_black_24dp).withName(getString(R.string.menu_feed)),
                         PrimaryDrawerItem().withIdentifier(MENU_ID_SEND_FEEDBACK).withIcon(R.drawable.ic_feedback_black_24dp).withName(getString(R.string.menu_send_feedback)),
@@ -135,15 +125,20 @@ class MapActivity : MvpAppCompatActivity(),
 
     override fun onItemClick(view: View?, position: Int, drawerItem: IDrawerItem<*, *>?): Boolean {
         when (drawerItem?.identifier) {
+            MENU_ID_MAP -> gotoMap()
             MENU_ID_FILTER -> addFragment(FilterFragment.newInstance(), FilterFragment::class.java.simpleName)
 //            MENU_ID_BUILD_ROUTE -> addFragment(SampleCacheDownloader(), SampleCacheDownloader::class.java.simpleName)
-//            MENU_ID_ADD_MARKER -> Unit
 //            MENU_ID_EVENTS -> Unit
 //            MENU_ID_FEED -> Unit
             MENU_ID_SEND_FEEDBACK -> addFragment(FeedbackFragment.newInstance(this), FeedbackFragment::class.java.simpleName)
             MENU_ID_ABOUT_INFO -> addFragment(AboutFragment.newInstance(), AboutFragment::class.java.simpleName)
         }
         return false
+    }
+
+    private fun gotoMap() {
+        if (drawer.isDrawerOpen) drawer.closeDrawer()
+        if (supportFragmentManager.backStackEntryCount > 0) closeOpenedFragment()
     }
 
     private fun initMap() {
@@ -290,12 +285,16 @@ class MapActivity : MvpAppCompatActivity(),
         if (drawer.isDrawerOpen) {
             drawer.closeDrawer()
         } else {
-            super.onBackPressed()
-            fragmentContainer.visibility = View.GONE
-            supportFragmentManager.popBackStack()
-            toolbarTitle.text = getString(R.string.app_name)
-            faButton.visibility = View.VISIBLE
+            closeOpenedFragment()
         }
+    }
+
+    private fun closeOpenedFragment() {
+        super.onBackPressed()
+        fragmentContainer.visibility = View.GONE
+        supportFragmentManager.popBackStack()
+        toolbarTitle.text = getString(R.string.app_name)
+        faButton.visibility = View.VISIBLE
     }
 
     override fun showFeedbackSendError(eMsg: String) {
@@ -320,8 +319,8 @@ class MapActivity : MvpAppCompatActivity(),
         val lvivGeo = GeoPoint(LVIV_LAT, LVIV_LNG)
 
         const val MENU_ID_FILTER = 1L
+        const val MENU_ID_MAP = 0L
         const val MENU_ID_BUILD_ROUTE = 2L
-        const val MENU_ID_ADD_MARKER = 3L
         const val MENU_ID_EVENTS = 4L
         const val MENU_ID_FEED = 5L
         const val MENU_ID_SEND_FEEDBACK = 6L
