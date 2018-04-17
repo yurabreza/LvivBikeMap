@@ -262,6 +262,7 @@ class MapActivity : MvpAppCompatActivity(),
             CategoryType.path -> pathsPolylines.forEach { if (checked) osmMap.overlays.add(it) else osmMap.overlays.remove(it) }
         }
         osmMap.controller.zoomOut()
+        osmMap.controller.zoomIn()
     }
 
     private fun manageMarkerArrayVisibility(list: ArrayList<Marker>, checked: Boolean) =
