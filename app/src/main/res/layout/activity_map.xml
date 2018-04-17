@@ -31,10 +31,11 @@
             android:textStyle="bold"/>
 
     </LinearLayout>
+
     <View
-        android:background="@drawable/shadow"
         android:layout_width="match_parent"
-        android:layout_height="2dp"/>
+        android:layout_height="2dp"
+        android:background="@drawable/shadow"/>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -46,12 +47,14 @@
             android:layout_height="fill_parent"/>
 
         <android.support.design.widget.FloatingActionButton
-            android:src="@drawable/ic_pin_drop_black_24dp"
             android:id="@+id/faButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
-            app:useCompatPadding="true"/>
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_location"/>
 
         <FrameLayout
             android:id="@+id/fragmentContainer"
