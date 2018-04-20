@@ -38,6 +38,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
         android:layout_margin="20dp"
+        android:background="@color/colorAccent"
         android:text="@string/btn_send_feedback_text"/>
 
 </RelativeLayout>
