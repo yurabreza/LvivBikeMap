@@ -1,4 +1,4 @@
-package com.hack.kind.lvivbikemap
+package com.hack.kind.lvivbikemap.presentation
 
 import android.content.Context
 import android.os.Bundle
@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.CompoundButton
+import com.hack.kind.lvivbikemap.R.layout
 import com.hack.kind.lvivbikemap.data.categoryChecked
 import com.hack.kind.lvivbikemap.data.putCategoryChecked
 import com.hack.kind.lvivbikemap.domain.model.CategoryType
@@ -33,7 +34,7 @@ class FilterFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_filter, container, false)
+        return inflater.inflate(layout.fragment_filter, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

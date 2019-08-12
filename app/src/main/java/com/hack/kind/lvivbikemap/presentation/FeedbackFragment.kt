@@ -1,20 +1,22 @@
-package com.hack.kind.lvivbikemap
+package com.hack.kind.lvivbikemap.presentation
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.hack.kind.lvivbikemap.R.layout
+import com.hack.kind.lvivbikemap.R.string
 import com.hack.kind.lvivbikemap.data.api.FeedbackRequest
 import kotlinx.android.synthetic.main.fragment_feedback.*
 
 class FeedbackFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_feedback, container, false)
+        return inflater.inflate(layout.fragment_feedback, container, false)
     }
 
-    private lateinit var listener: FeedbackFragment.FeedbackSendListener
+    private lateinit var listener: FeedbackSendListener
 
     interface FeedbackSendListener {
         fun onFeedbackSend(feedback: FeedbackRequest)
@@ -35,15 +37,15 @@ class FeedbackFragment : Fragment() {
     private fun sendFeedback() {
         var isValid = true
         if (!isEmailValid(etEmail.text.toString())) {
-            etEmail.error = getString(R.string.valid_email_error)
+            etEmail.error = getString(string.valid_email_error)
             isValid = false
         }
         if (etFullName.text.isEmpty()) {
-            etFullName.error = getString(R.string.valid_name_error)
+            etFullName.error = getString(string.valid_name_error)
             isValid = false
         }
         if (etComment.text.isEmpty()) {
-            etComment.error = getString(R.string.valid_comment_error)
+            etComment.error = getString(string.valid_comment_error)
             isValid = false
         }
         if (isValid) {

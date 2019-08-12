@@ -31,8 +31,6 @@ class MapDataRepositoryImpl(private val mApi: ApiInterface,private val gson: Gso
     private val myStore =
             StoreBuilder.parsedWithKey<BarCode, BufferedSource, List<PointModel>>()
                     .fetcher { barcode -> fetcher(mApi, barcode.key.toInt()) }
-                     // this unobvious dependency is only due to hurry
-                    .persister(SourcePersisterFactory.create(App.Companion.cacheDirect))
                     .parser(GsonParserFactory.createSourceParser<List<PointModel>>(gson, type))
                     .open()
 

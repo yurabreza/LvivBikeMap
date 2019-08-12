@@ -21,6 +21,9 @@ import com.hack.kind.lvivbikemap.data.api.FeedbackResponse
 import com.hack.kind.lvivbikemap.data.categoryChecked
 import com.hack.kind.lvivbikemap.domain.model.CategoryType
 import com.hack.kind.lvivbikemap.domain.model.PointModel
+import com.hack.kind.lvivbikemap.presentation.AboutFragment
+import com.hack.kind.lvivbikemap.presentation.FeedbackFragment
+import com.hack.kind.lvivbikemap.presentation.FilterFragment
 import com.hack.kind.lvivbikemap.presentation.map.presenter.MapPresenter
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
